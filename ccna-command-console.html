@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCNA Command Console — IOS Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1218;
+    --bg-2:#121a22;
+    --surface:#161f29;
+    --surface-2:#1b2734;
+    --line:#243140;
+    --line-soft:#1d2733;
+    --ink:#e8eef4;
+    --ink-mute:#8a99a8;
+    --ink-faint:#5c6b7a;
+    --accent:#46c2e8;
+
+    /* mode palette — encodes which IOS mode a command runs in */
+    --m-user:#7e8e9e;     /* User EXEC        >        */
+    --m-priv:#38bdf8;     /* Privileged EXEC  #        */
+    --m-global:#f2b23e;   /* Global Config    (config)# */
+    --m-if:#54e08a;       /* Interface Config (config-if)# */
+    --m-sub:#a98bf5;      /* Other sub-config (router/line/vlan/pool)# */
+
+    --radius:10px;
+    --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:'IBM Plex Sans',system-ui,sans-serif;
+    --display:'Space Grotesk',var(--sans);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #15212c 0%, rgba(21,33,44,0) 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px 64px;}
+
+  /* ---------- header ---------- */
+  header.top{padding:34px 0 22px;border-bottom:1px solid var(--line-soft);}
+  .eyebrow{
+    font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--ink-faint);margin:0 0 10px;
+  }
+  .eyebrow b{color:var(--accent);font-weight:500;}
+  h1{
+    font-family:var(--display);font-weight:700;font-size:clamp(28px,4.4vw,44px);
+    letter-spacing:-.02em;margin:0;line-height:1.04;
+  }
+  h1 .blink{
+    display:inline-block;width:.5ch;background:var(--accent);
+    color:transparent;margin-left:2px;animation:cursor 1.05s steps(1) infinite;
+    border-radius:1px;
+  }
+  @keyframes cursor{50%{opacity:0;}}
+  .tagline{color:var(--ink-mute);margin:12px 0 0;max-width:62ch;font-size:15px;}
+
+  /* prompt-mode legend = the signature element */
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px;}
+  .legend .chip{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:999px;padding:6px 12px 6px 10px;font-size:12.5px;color:var(--ink-mute);
+  }
+  .legend .dot{width:9px;height:9px;border-radius:50%;flex:none;}
+  .legend code{font-family:var(--mono);color:var(--ink);font-size:11.5px;}
+
+  /* ---------- search ---------- */
+  .searchbar{margin:24px 0 0;position:relative;}
+  .searchbar input{
+    width:100%;background:var(--bg-2);border:1px solid var(--line);
+    border-radius:var(--radius);color:var(--ink);font-family:var(--mono);
+    font-size:15px;padding:14px 16px 14px 44px;outline:none;transition:border-color .15s,box-shadow .15s;
+  }
+  .searchbar input::placeholder{color:var(--ink-faint);}
+  .searchbar input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(70,194,232,.14);}
+  .searchbar .glyph{
+    position:absolute;left:15px;top:50%;transform:translateY(-50%);
+    font-family:var(--mono);color:var(--accent);font-size:15px;pointer-events:none;
+  }
+  .searchbar .count{
+    position:absolute;right:14px;top:50%;transform:translateY(-50%);
+    font-size:12px;color:var(--ink-faint);font-family:var(--mono);
+  }
+
+  /* ---------- layout ---------- */
+  .grid{display:grid;grid-template-columns:248px 1fr;gap:28px;margin-top:26px;align-items:start;}
+
+  nav.cats{position:sticky;top:18px;}
+  nav.cats .navhead{
+    font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink-faint);padding:0 12px 10px;
+  }
+  nav.cats button{
+    display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+    background:transparent;border:0;border-left:2px solid transparent;
+    color:var(--ink-mute);font-family:var(--sans);font-size:14px;font-weight:500;
+    padding:9px 12px;cursor:pointer;border-radius:0 7px 7px 0;transition:background .12s,color .12s,border-color .12s;
+  }
+  nav.cats button .idx{font-family:var(--mono);font-size:11px;color:var(--ink-faint);width:18px;flex:none;}
+  nav.cats button:hover{background:var(--surface);color:var(--ink);}
+  nav.cats button.active{background:var(--surface-2);color:var(--ink);border-left-color:var(--accent);}
+  nav.cats button.active .idx{color:var(--accent);}
+
+  /* ---------- main ---------- */
+  main{min-width:0;}
+  .cat-intro{margin:2px 0 22px;}
+  .cat-intro h2{font-family:var(--display);font-weight:600;font-size:24px;margin:0;letter-spacing:-.01em;}
+  .cat-intro p{color:var(--ink-mute);margin:8px 0 0;font-size:14.5px;max-width:64ch;}
+
+  .group{margin-top:26px;}
+  .group:first-of-type{margin-top:8px;}
+  .group > h3{
+    font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--ink-faint);margin:0 0 11px;display:flex;align-items:center;gap:10px;
+  }
+  .group > h3::after{content:"";flex:1;height:1px;background:var(--line-soft);}
+
+  /* command accordion */
+  .cmd{
+    border:1px solid var(--line);border-left-width:3px;border-radius:var(--radius);
+    background:var(--surface);margin-bottom:9px;overflow:hidden;transition:border-color .14s,background .14s;
+  }
+  .cmd:hover{border-color:#30425440;background:var(--surface-2);}
+  .cmd.open{background:var(--surface-2);}
+  .cmd-head{
+    display:flex;align-items:center;gap:14px;width:100%;text-align:left;
+    background:transparent;border:0;cursor:pointer;padding:13px 15px;color:inherit;font-family:inherit;
+  }
+  .cmd-head .syntax{font-family:var(--mono);font-size:14px;font-weight:500;color:var(--ink);flex:none;}
+  .cmd-head .blurb{color:var(--ink-mute);font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .badge{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;
+    padding:3px 8px;border-radius:5px;flex:none;font-weight:500;
+    background:#0f1620;border:1px solid currentColor;
+  }
+  .chev{flex:none;color:var(--ink-faint);font-family:var(--mono);font-size:12px;transition:transform .18s;}
+  .cmd.open .chev{transform:rotate(90deg);color:var(--accent);}
+
+  .cmd-body{
+    max-height:0;overflow:hidden;transition:max-height .26s ease;
+  }
+  .cmd.open .cmd-body{max-height:520px;}
+  .cmd-body-inner{padding:2px 16px 16px 16px;border-top:1px solid var(--line-soft);margin-top:0;}
+
+  .console{
+    font-family:var(--mono);font-size:13px;background:#0a0f15;border:1px solid var(--line-soft);
+    border-radius:8px;padding:12px 14px;margin:14px 0 0;white-space:pre-wrap;word-break:break-word;line-height:1.65;
+  }
+  .console .prompt{font-weight:500;}
+  .console .typed{color:var(--ink);}
+  .console .comment{color:var(--ink-faint);}
+
+  .meta{margin-top:13px;font-size:13.5px;color:var(--ink-mute);}
+  .meta .k{color:var(--ink);font-weight:600;}
+  .note{
+    margin-top:12px;font-size:13px;color:#dbe6c9;background:rgba(242,178,62,.07);
+    border-left:2px solid var(--m-global);border-radius:0 6px 6px 0;padding:9px 12px;
+  }
+  .note b{color:var(--m-global);font-weight:600;}
+
+  .empty{padding:48px 8px;color:var(--ink-mute);font-size:15px;text-align:center;}
+  .empty code{font-family:var(--mono);color:var(--accent);}
+
+  footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--line-soft);color:var(--ink-faint);font-size:12.5px;}
+
+  /* mode color binding */
+  .m-user{border-left-color:var(--m-user);} .m-user .badge,.m-user .console .prompt{color:var(--m-user);}
+  .m-priv{border-left-color:var(--m-priv);} .m-priv .badge,.m-priv .console .prompt{color:var(--m-priv);}
+  .m-global{border-left-color:var(--m-global);} .m-global .badge,.m-global .console .prompt{color:var(--m-global);}
+  .m-if{border-left-color:var(--m-if);} .m-if .badge,.m-if .console .prompt{color:var(--m-if);}
+  .m-sub{border-left-color:var(--m-sub);} .m-sub .badge,.m-sub .console .prompt{color:var(--m-sub);}
+
+  @media (max-width:820px){
+    .grid{grid-template-columns:1fr;gap:14px;}
+    nav.cats{position:static;}
+    nav.cats .navhead{display:none;}
+    nav.cats .scroller{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;}
+    nav.cats button{width:auto;white-space:nowrap;border-left:0;border:1px solid var(--line);border-radius:999px;padding:8px 13px;}
+    nav.cats button.active{border-color:var(--accent);border-left-width:1px;}
+    nav.cats button .idx{display:none;}
+    .cmd-head .blurb{display:none;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important;}
+    .cmd-body{transition:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">Cisco IOS · CCNA <b>200-301</b> · CLI reference</p>
+    <h1>Command Console<span class="blink">_</span></h1>
+    <p class="tagline">Pick a topic, click a command to open it. Each one shows the exact prompt you'd see, a working example, and where to use it. The colored edge tells you which IOS mode you have to be in.</p>
+
+    <div class="legend" id="legend"></div>
+
+    <div class="searchbar">
+      <span class="glyph">/</span>
+      <input id="search" type="text" placeholder="Filter commands…  e.g. ospf, trunk, nat, portfast" autocomplete="off" spellcheck="false" aria-label="Filter commands">
+      <span class="count" id="count"></span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <nav class="cats" aria-label="Topics">
+      <div class="navhead">Topics</div>
+      <div class="scroller" id="cats"></div>
+    </nav>
+    <main id="main" aria-live="polite"></main>
+  </div>
+
+  <footer>
+    Built for studying — verify quirks per platform. Standard IOS / IOS-XE syntax (e.g. Catalyst 2960, ISR). Real-world notes reference a multivendor Arista / UniFi fabric.
+  </footer>
+</div>
+
+<script>
+/* ---- mode definitions (the color key) ---- */
+const MODES = {
+  user:   {label:"User EXEC",       cls:"m-user",   prompt:"Switch>",            legend:"&gt;"},
+  priv:   {label:"Priv EXEC",       cls:"m-priv",   prompt:"Switch#",            legend:"#"},
+  global: {label:"Global Cfg",      cls:"m-global", prompt:"Switch(config)#",    legend:"(config)#"},
+  if:     {label:"Interface",       cls:"m-if",     prompt:"Switch(config-if)#", legend:"(config-if)#"},
+  sub:    {label:"Sub-config",      cls:"m-sub",    prompt:"Switch(config-x)#",  legend:"(config-…)#"}
+};
+
+/* ---- command data ---- prompt overrides the mode default where useful ---- */
+const DATA = [
+{ id:"basics", title:"Device Access & Basics", blurb:"Getting in, naming the box, locking it down, and saving your work.",
+  groups:[
+    { name:"Move through the modes", cmds:[
+      {cmd:"enable", mode:"user", prompt:"Switch>", line:"enable", blurb:"Enter privileged EXEC mode", desc:"Jumps from User EXEC (>) to Privileged EXEC (#). Required before you can configure anything."},
+      {cmd:"configure terminal", mode:"priv", prompt:"Switch#", line:"configure terminal", blurb:"Enter global configuration", desc:"Drops you into global config. Shorthand: conf t."},
+      {cmd:"exit / end", mode:"global", prompt:"Switch(config-if)#", line:"end", blurb:"Back out of a mode (end jumps straight to #)", desc:"exit steps back one mode; end returns directly to Privileged EXEC from any config sub-mode."},
+      {cmd:"do <command>", mode:"global", prompt:"Switch(config)#", line:"do show ip interface brief", blurb:"Run a show/EXEC command without leaving config", desc:"Lets you run privileged EXEC commands (show, ping, copy) while staying in config mode."},
+    ]},
+    { name:"Identity & passwords", cmds:[
+      {cmd:"hostname", mode:"global", prompt:"Switch(config)#", line:"hostname DSW1-MDU3", blurb:"Set the device name", desc:"Changes the CLI prompt and is used by CDP/LLDP. Pick names that map to the rack/site."},
+      {cmd:"enable secret", mode:"global", prompt:"Switch(config)#", line:"enable secret Str0ngP@ss", blurb:"Password for privileged EXEC (hashed)", desc:"Protects entry into # mode. Stored as a hash — always prefer this over 'enable password'."},
+      {cmd:"username … secret", mode:"global", prompt:"Switch(config)#", line:"username netadmin privilege 15 secret C0re!2026", blurb:"Local user for login authentication", desc:"Creates a local account. Needed for 'login local' on console/VTY and for SSH."},
+      {cmd:"service password-encryption", mode:"global", prompt:"Switch(config)#", line:"service password-encryption", blurb:"Weakly encrypt plaintext passwords in config", desc:"Hides type-7 passwords from shoulder-surfing. Trivially reversible — not real security, but expected on the exam."},
+      {cmd:"banner motd", mode:"global", prompt:"Switch(config)#", line:"banner motd #Authorized access only#", blurb:"Login warning banner", desc:"The # is a delimiter — text between the two # marks is the banner. Use any char not in the message."},
+    ]},
+    { name:"Console & remote lines", cmds:[
+      {cmd:"line console 0", mode:"global", prompt:"Switch(config)#", line:"line console 0\n password Con!sole\n login", blurb:"Configure the physical console port", desc:"Sets the local console login. 'login' (alone) uses the line password; 'login local' uses the username database."},
+      {cmd:"line vty 0 4", mode:"global", prompt:"Switch(config)#", line:"line vty 0 15\n login local\n transport input ssh", blurb:"Configure remote (Telnet/SSH) sessions", desc:"VTY lines are virtual terminals for remote access. 0 15 = 16 concurrent sessions on most switches."},
+    ]},
+    { name:"Save & reload", cmds:[
+      {cmd:"copy running-config startup-config", mode:"priv", prompt:"Switch#", line:"copy running-config startup-config", blurb:"Save the running config to NVRAM", desc:"Without this, your changes are lost on reboot. Shorthand: 'write memory' / 'wr'."},
+      {cmd:"show running-config", mode:"priv", prompt:"Switch#", line:"show running-config", blurb:"Display the active config", desc:"The live config in RAM. 'show startup-config' shows what's saved in NVRAM."},
+      {cmd:"reload", mode:"priv", prompt:"Switch#", line:"reload", blurb:"Reboot the device", desc:"Prompts to save if there are unsaved changes. 'reload in 10' schedules a reboot — handy as a rollback safety net during remote changes."},
+    ]},
+  ]},
+
+{ id:"intf", title:"Interfaces & Addressing", blurb:"Bringing ports up, assigning IPs, and checking link state.",
+  groups:[
+    { name:"Selecting & describing", cmds:[
+      {cmd:"interface", mode:"global", prompt:"Switch(config)#", line:"interface GigabitEthernet0/1", blurb:"Enter interface config mode", desc:"Drops into (config-if)#. Shorthand: int g0/1."},
+      {cmd:"interface range", mode:"global", prompt:"Switch(config)#", line:"interface range Gi0/1 - 24", blurb:"Configure many ports at once", desc:"Apply the same config to a block of ports — e.g. set all access ports for a floor of units in one shot."},
+      {cmd:"description", mode:"if", prompt:"Switch(config-if)#", line:"description UPLINK to Core Gi1/0/1", blurb:"Label the port", desc:"Free-text label shown in 'show interfaces' output. Document uplinks and customer drops."},
+    ]},
+    { name:"Addressing", cmds:[
+      {cmd:"ip address", mode:"if", prompt:"Router(config-if)#", line:"ip address 10.20.30.1 255.255.255.0", blurb:"Assign an IPv4 address + mask", desc:"On a routed port or SVI. Switchports don't take an IP unless you make them routed ('no switchport')."},
+      {cmd:"no shutdown", mode:"if", prompt:"Router(config-if)#", line:"no shutdown", blurb:"Administratively enable the port", desc:"Router interfaces are shut by default — this is the #1 'why is it down' gotcha. Switchports come up enabled."},
+      {cmd:"speed / duplex", mode:"if", prompt:"Switch(config-if)#", line:"speed 1000\n duplex full", blurb:"Force link parameters", desc:"Default is 'auto'. Hard-set both ends or leave both auto — a speed/duplex mismatch causes late collisions and errors."},
+    ]},
+    { name:"Verify", cmds:[
+      {cmd:"show ip interface brief", mode:"priv", prompt:"Switch#", line:"show ip interface brief", blurb:"One-line status of every interface", desc:"Your go-to: IP, line status (layer 1), and protocol status (layer 2). Shorthand: sh ip int br."},
+      {cmd:"show interfaces status", mode:"priv", prompt:"Switch#", line:"show interfaces status", blurb:"Port status, VLAN, speed, duplex", desc:"Switch-focused view: connected/notconnect/err-disabled, access VLAN, and negotiated speed/duplex per port."},
+      {cmd:"show interfaces", mode:"priv", prompt:"Switch#", line:"show interfaces Gi0/1", blurb:"Full counters & error stats", desc:"Deep detail: CRC errors, input/output drops, runts/giants. Where you confirm a cabling or duplex problem."},
+    ]},
+  ]},
+
+{ id:"vlan", title:"VLANs & Trunking", blurb:"Segmenting the switch and carrying multiple VLANs over one link with 802.1Q.",
+  groups:[
+    { name:"Access VLANs", cmds:[
+      {cmd:"vlan / name", mode:"global", prompt:"Switch(config)#", line:"vlan 30\n name MDU3-TENANTS", blurb:"Create a VLAN and name it", desc:"Creates the VLAN in the database and drops into (config-vlan)#. Naming keeps large MDU deployments sane.", mode2:"sub"},
+      {cmd:"switchport mode access", mode:"if", prompt:"Switch(config-if)#", line:"switchport mode access", blurb:"Hard-set the port as an access port", desc:"Disables trunk negotiation on that port — pair with 'switchport access vlan'."},
+      {cmd:"switchport access vlan", mode:"if", prompt:"Switch(config-if)#", line:"switchport access vlan 30", blurb:"Place an access port in a VLAN", desc:"Assigns untagged traffic on this port to VLAN 30. The endpoint never sees a tag."},
+    ]},
+    { name:"Trunks (802.1Q)", cmds:[
+      {cmd:"switchport mode trunk", mode:"if", prompt:"Switch(config-if)#", line:"switchport mode trunk", blurb:"Hard-set the port as a trunk", desc:"Carries multiple VLANs with 802.1Q tags. On some switches you must set 'switchport trunk encapsulation dot1q' first."},
+      {cmd:"switchport trunk allowed vlan", mode:"if", prompt:"Switch(config-if)#", line:"switchport trunk allowed vlan 10,20,30", blurb:"Prune which VLANs cross the trunk", desc:"Best practice: allow only what's needed. Use 'add' / 'remove' to edit without overwriting the whole list."},
+      {cmd:"switchport trunk native vlan", mode:"if", prompt:"Switch(config-if)#", line:"switchport trunk native vlan 999", blurb:"Set the untagged (native) VLAN", desc:"Native VLAN traffic crosses the trunk untagged. Must match both ends — change it off VLAN 1 to harden against VLAN hopping."},
+      {cmd:"switchport nonegotiate", mode:"if", prompt:"Switch(config-if)#", line:"switchport nonegotiate", blurb:"Stop sending DTP frames", desc:"Disables Dynamic Trunking Protocol negotiation on the port — use with hard-set access/trunk modes.",
+        note:"DTP is <b>Cisco-proprietary</b>. The Arista / UniFi side of the ETS fabric doesn't speak it, so those trunks are configured statically anyway. On Cisco-to-Cisco links, set modes manually and nonegotiate to keep trunks deterministic."},
+    ]},
+    { name:"Verify", cmds:[
+      {cmd:"show vlan brief", mode:"priv", prompt:"Switch#", line:"show vlan brief", blurb:"VLANs and their assigned ports", desc:"Confirms VLANs exist and which access ports landed in each. Trunk ports won't show up here."},
+      {cmd:"show interfaces trunk", mode:"priv", prompt:"Switch#", line:"show interfaces trunk", blurb:"Trunk ports, native VLAN, allowed/active VLANs", desc:"The fastest way to spot a native-VLAN mismatch or a VLAN that isn't crossing a trunk."},
+    ]},
+  ]},
+
+{ id:"etherchannel", title:"EtherChannel", blurb:"Bundling physical links into one logical pipe with LACP.",
+  groups:[
+    { name:"Build the bundle", cmds:[
+      {cmd:"channel-group … mode", mode:"if", prompt:"Switch(config-if)#", line:"interface range Gi0/1 - 2\n channel-group 1 mode active", blurb:"Add ports to a channel group", desc:"LACP: active / passive. PAgP: desirable / auto. Static: on. Both ends must be compatible — active+active or active+passive for LACP.",
+        note:"<b>LACP (802.3ad)</b> is the multivendor standard and is what's used toward the Arista fabric. <b>PAgP</b> (desirable/auto) is Cisco-only — don't reach for it on mixed-vendor uplinks."},
+      {cmd:"interface port-channel", mode:"global", prompt:"Switch(config)#", line:"interface port-channel 1\n switchport mode trunk", blurb:"Configure the logical bundle", desc:"Apply trunk/access settings to the Po interface — members inherit them. Configure the bundle, not the individual links."},
+    ]},
+    { name:"Verify", cmds:[
+      {cmd:"show etherchannel summary", mode:"priv", prompt:"Switch#", line:"show etherchannel summary", blurb:"Bundle state and member flags", desc:"Read the flags: (P) = bundled/in use, (s) = suspended, (D) = down. All members should show (P)."},
+    ]},
+  ]},
+
+{ id:"stp", title:"Spanning Tree", blurb:"Loop prevention, root placement, and edge-port hardening.",
+  groups:[
+    { name:"Mode & root", cmds:[
+      {cmd:"spanning-tree mode rapid-pvst", mode:"global", prompt:"Switch(config)#", line:"spanning-tree mode rapid-pvst", blurb:"Run Rapid PVST+", desc:"Faster convergence than classic PVST+, one instance per VLAN. The common Cisco default to standardize on."},
+      {cmd:"spanning-tree vlan … root primary", mode:"global", prompt:"Switch(config)#", line:"spanning-tree vlan 1-50 root primary", blurb:"Make this switch the root bridge", desc:"Lowers the bridge priority so your chosen distribution switch wins the root election deterministically."},
+    ]},
+    { name:"Edge port hardening", cmds:[
+      {cmd:"spanning-tree portfast", mode:"if", prompt:"Switch(config-if)#", line:"spanning-tree portfast", blurb:"Skip listening/learning on an access port", desc:"Brings end-device ports up instantly. Only on ports facing hosts/APs — never switch-to-switch links."},
+      {cmd:"spanning-tree bpduguard enable", mode:"if", prompt:"Switch(config-if)#", line:"spanning-tree bpduguard enable", blurb:"Err-disable a PortFast port if it sees a BPDU", desc:"Protects the edge: if someone plugs a switch into a host port, the port shuts down instead of triggering a loop."},
+    ]},
+    { name:"Verify", cmds:[
+      {cmd:"show spanning-tree", mode:"priv", prompt:"Switch#", line:"show spanning-tree vlan 30", blurb:"Root bridge, port roles & states", desc:"Shows who the root is, each port's role (root/designated/alternate) and state (FWD/BLK). 'show spanning-tree summary' for a quick view."},
+    ]},
+  ]},
+
+{ id:"ivr", title:"Inter-VLAN Routing", blurb:"Routing between VLANs with SVIs or router-on-a-stick.",
+  groups:[
+    { name:"SVIs (multilayer switch)", cmds:[
+      {cmd:"ip routing", mode:"global", prompt:"Switch(config)#", line:"ip routing", blurb:"Enable L3 routing on the switch", desc:"Required on a multilayer switch before SVIs will route between VLANs. Off by default on L2 switches."},
+      {cmd:"interface vlan", mode:"global", prompt:"Switch(config)#", line:"interface vlan 30\n ip address 10.30.0.1 255.255.255.0\n no shutdown", blurb:"Create an SVI as the VLAN gateway", desc:"A Switched Virtual Interface is the default gateway for hosts in that VLAN.", mode2:"if",
+        note:"Same model as the SVIs on the Arista core — define a VLAN interface, give it the gateway IP, and L3 routes between segments. Concept ports directly across vendors."},
+    ]},
+    { name:"Router-on-a-stick", cmds:[
+      {cmd:"subinterface + encapsulation dot1q", mode:"global", prompt:"Router(config)#", line:"interface Gi0/0.30\n encapsulation dot1q 30\n ip address 10.30.0.1 255.255.255.0", blurb:"One router port, many VLANs", desc:"Each subinterface handles one VLAN's tag and acts as that VLAN's gateway over a single trunk to the switch.", mode2:"sub"},
+    ]},
+    { name:"Verify", cmds:[
+      {cmd:"show ip route", mode:"priv", prompt:"Router#", line:"show ip route", blurb:"The routing table", desc:"C = connected, L = local, S = static, O = OSPF. Directly connected VLAN subnets appear as C once SVIs/subints are up."},
+    ]},
+  ]},
+
+{ id:"static", title:"Static Routing", blurb:"Manually telling the router where networks live.",
+  groups:[
+    { name:"IPv4", cmds:[
+      {cmd:"ip route", mode:"global", prompt:"Router(config)#", line:"ip route 10.50.0.0 255.255.255.0 10.0.0.2", blurb:"Static route via next-hop", desc:"Destination network + mask + next-hop (or exit interface). Add an AD value at the end for a floating static backup."},
+      {cmd:"default route", mode:"global", prompt:"Router(config)#", line:"ip route 0.0.0.0 0.0.0.0 203.0.113.1", blurb:"Gateway of last resort", desc:"0.0.0.0/0 matches anything not in the table — points to the upstream/ISP edge. The classic default route."},
+    ]},
+    { name:"IPv6", cmds:[
+      {cmd:"ipv6 route", mode:"global", prompt:"Router(config)#", line:"ipv6 route 2001:db8:50::/64 2001:db8:0:1::2", blurb:"Static IPv6 route", desc:"Same idea as IPv4. Default route is ::/0. Requires 'ipv6 unicast-routing' to be enabled first."},
+    ]},
+  ]},
+
+{ id:"ospf", title:"OSPF", blurb:"Single-area OSPFv2 — the routing protocol CCNA leans on hardest.",
+  groups:[
+    { name:"Core config", cmds:[
+      {cmd:"router ospf", mode:"global", prompt:"Router(config)#", line:"router ospf 1", blurb:"Start an OSPF process", desc:"The process ID (1) is locally significant only — it does NOT have to match between neighbors.", mode2:"sub"},
+      {cmd:"network … area", mode:"sub", prompt:"Router(config-router)#", line:"network 10.0.0.0 0.0.0.255 area 0", blurb:"Advertise interfaces & set their area", desc:"Uses a WILDCARD mask (inverse). Any interface whose IP falls in the range joins area 0 and starts forming adjacencies."},
+      {cmd:"router-id", mode:"sub", prompt:"Router(config-router)#", line:"router-id 1.1.1.1", blurb:"Pin the OSPF Router ID", desc:"Set it explicitly for predictability. Otherwise OSPF picks highest loopback IP, then highest active interface IP."},
+      {cmd:"passive-interface", mode:"sub", prompt:"Router(config-router)#", line:"passive-interface GigabitEthernet0/2", blurb:"Advertise a subnet but send no hellos", desc:"Use on interfaces facing hosts/customers — still advertised, but won't form (or invite) adjacencies. 'passive-interface default' flips the logic."},
+      {cmd:"default-information originate", mode:"sub", prompt:"Router(config-router)#", line:"default-information originate", blurb:"Push your default route into OSPF", desc:"Advertises your 0.0.0.0/0 to OSPF neighbors so internal routers know how to reach the internet edge."},
+    ]},
+    { name:"Verify", cmds:[
+      {cmd:"show ip ospf neighbor", mode:"priv", prompt:"Router#", line:"show ip ospf neighbor", blurb:"Adjacency state per neighbor", desc:"Look for FULL or 2WAY (on multi-access). Stuck in INIT/EXSTART points to a hello/dead timer, MTU, or subnet mismatch."},
+      {cmd:"show ip protocols", mode:"priv", prompt:"Router#", line:"show ip protocols", blurb:"Running protocols, networks, router-id", desc:"Confirms which networks OSPF is advertising and the configured passive interfaces and router-id in one place."},
+    ]},
+  ]},
+
+{ id:"dhcp", title:"DHCP", blurb:"Handing out addresses from the router, and relaying across subnets.",
+  groups:[
+    { name:"Server pool", cmds:[
+      {cmd:"ip dhcp excluded-address", mode:"global", prompt:"Router(config)#", line:"ip dhcp excluded-address 10.30.0.1 10.30.0.10", blurb:"Reserve addresses (gateways, servers)", desc:"Set BEFORE the pool. Keeps the DHCP server from leasing out your gateway/static range."},
+      {cmd:"ip dhcp pool", mode:"global", prompt:"Router(config)#", line:"ip dhcp pool MDU3\n network 10.30.0.0 255.255.255.0\n default-router 10.30.0.1\n dns-server 1.1.1.1", blurb:"Define a scope", desc:"network = the subnet to lease from; default-router = gateway handed to clients; dns-server = resolver. Drops into (config-dhcp)#.", mode2:"sub"},
+    ]},
+    { name:"Relay", cmds:[
+      {cmd:"ip helper-address", mode:"if", prompt:"Router(config-if)#", line:"ip helper-address 10.0.0.5", blurb:"Forward DHCP broadcasts to a server", desc:"On the client-side SVI/interface. DHCP discovers are broadcasts — the relay forwards them to a server on another subnet."},
+    ]},
+    { name:"Verify", cmds:[
+      {cmd:"show ip dhcp binding", mode:"priv", prompt:"Router#", line:"show ip dhcp binding", blurb:"Active leases (IP ↔ MAC)", desc:"Confirms clients are actually getting addresses. 'show ip dhcp pool' shows utilization of the scope."},
+    ]},
+  ]},
+
+{ id:"nat", title:"NAT / PAT", blurb:"Translating private addresses to public — including overload (PAT).",
+  groups:[
+    { name:"Define inside/outside", cmds:[
+      {cmd:"ip nat inside / outside", mode:"if", prompt:"Router(config-if)#", line:"interface Gi0/0\n ip nat inside\n!\ninterface Gi0/1\n ip nat outside", blurb:"Mark which side of the router is which", desc:"NAT only acts on traffic crossing between an 'inside' and an 'outside' interface. Forgetting this is a top reason NAT 'does nothing'."},
+    ]},
+    { name:"PAT (overload)", cmds:[
+      {cmd:"access-list (match traffic)", mode:"global", prompt:"Router(config)#", line:"access-list 1 permit 192.168.0.0 0.0.255.255", blurb:"Pick which inside hosts get translated", desc:"A standard ACL naming the private source range that NAT is allowed to translate."},
+      {cmd:"ip nat inside source list … overload", mode:"global", prompt:"Router(config)#", line:"ip nat inside source list 1 interface Gi0/1 overload", blurb:"Many private hosts → one public IP", desc:"PAT: maps the ACL-matched hosts to the outside interface IP, multiplexed by port. 'overload' is what makes it PAT.",
+        note:"This is the same mechanism that scales to <b>CG-NAT (RFC 6598, 100.64.0.0/10)</b> at the ISP edge — many subscribers sharing public IPs, tracked by port. CCNA tests the single-router version; the ISP version is just bigger."},
+    ]},
+    { name:"Static & verify", cmds:[
+      {cmd:"ip nat inside source static", mode:"global", prompt:"Router(config)#", line:"ip nat inside source static 192.168.1.10 203.0.113.10", blurb:"Fixed 1:1 mapping", desc:"Permanent inside↔outside mapping — use to publish an internal server on a public address."},
+      {cmd:"show ip nat translations", mode:"priv", prompt:"Router#", line:"show ip nat translations", blurb:"The active translation table", desc:"Confirms NAT is building entries. 'clear ip nat translation *' wipes it; 'show ip nat statistics' shows hit counts."},
+    ]},
+  ]},
+
+{ id:"acl", title:"Access Control Lists", blurb:"Filtering traffic with standard, extended, and named ACLs.",
+  groups:[
+    { name:"Build the list", cmds:[
+      {cmd:"access-list (standard)", mode:"global", prompt:"Router(config)#", line:"access-list 10 permit 192.168.1.0 0.0.0.255", blurb:"Numbered standard ACL (1-99)", desc:"Matches SOURCE address only. Place standard ACLs close to the destination. Wildcard mask, not subnet mask."},
+      {cmd:"access-list (extended)", mode:"global", prompt:"Router(config)#", line:"access-list 100 permit tcp 10.30.0.0 0.0.0.255 any eq 443", blurb:"Numbered extended ACL (100-199)", desc:"Matches protocol, source, destination, and port. Place extended ACLs close to the source. Remember the implicit deny-all at the end."},
+      {cmd:"ip access-list (named)", mode:"global", prompt:"Router(config)#", line:"ip access-list extended BLOCK-GUEST\n deny ip 10.99.0.0 0.0.0.255 10.0.0.0 0.0.255.255\n permit ip any any", blurb:"Named ACL with editable entries", desc:"Named ACLs read better and let you insert/delete individual lines by sequence number. Preferred over numbered.", mode2:"sub"},
+    ]},
+    { name:"Apply & verify", cmds:[
+      {cmd:"ip access-group", mode:"if", prompt:"Router(config-if)#", line:"ip access-group 100 in", blurb:"Attach an ACL to an interface", desc:"Pick a direction: 'in' filters traffic entering the interface, 'out' filters traffic leaving it. An ACL does nothing until applied."},
+      {cmd:"access-class", mode:"sub", prompt:"Router(config-line)#", line:"line vty 0 4\n access-class 10 in", blurb:"Restrict who can reach the VTY lines", desc:"Limits which source IPs may open SSH/Telnet sessions to the device — lock management access to your jump hosts."},
+      {cmd:"show access-lists", mode:"priv", prompt:"Router#", line:"show access-lists", blurb:"List contents + match counters", desc:"Hit counters per line show whether traffic is actually matching — invaluable when an ACL 'isn't working'."},
+    ]},
+  ]},
+
+{ id:"ipv6", title:"IPv6", blurb:"Enabling v6 routing and the main ways to address an interface.",
+  groups:[
+    { name:"Enable & address", cmds:[
+      {cmd:"ipv6 unicast-routing", mode:"global", prompt:"Router(config)#", line:"ipv6 unicast-routing", blurb:"Turn on IPv6 routing & RAs", desc:"Off by default. Also makes the router send Router Advertisements so hosts can do SLAAC."},
+      {cmd:"ipv6 address (manual)", mode:"if", prompt:"Router(config-if)#", line:"ipv6 address 2001:db8:30::1/64", blurb:"Static global unicast address", desc:"Full address + prefix length. The router auto-derives a link-local (fe80::) as well."},
+      {cmd:"ipv6 address … eui-64", mode:"if", prompt:"Router(config-if)#", line:"ipv6 address 2001:db8:30::/64 eui-64", blurb:"Auto-build the host ID from the MAC", desc:"You provide the /64 prefix; the interface forms the host portion from its MAC (with ff:fe inserted)."},
+      {cmd:"ipv6 address autoconfig", mode:"if", prompt:"Router(config-if)#", line:"ipv6 address autoconfig", blurb:"Get the address via SLAAC", desc:"The interface listens for Router Advertisements (NDP) and configures itself from the advertised prefix."},
+    ]},
+    { name:"Verify", cmds:[
+      {cmd:"show ipv6 interface brief", mode:"priv", prompt:"Router#", line:"show ipv6 interface brief", blurb:"v6 addresses per interface", desc:"Shows link-local (fe80::) and any global addresses, plus up/down state."},
+      {cmd:"show ipv6 route", mode:"priv", prompt:"Router#", line:"show ipv6 route", blurb:"The IPv6 routing table", desc:"Codes mirror IPv4: C/L connected, S static, O OSPFv3. ND entries come from neighbor discovery."},
+    ]},
+  ]},
+
+{ id:"security", title:"Security & Hardening", blurb:"Port security, SSH, and switch-side protections.",
+  groups:[
+    { name:"Port security", cmds:[
+      {cmd:"switchport port-security", mode:"if", prompt:"Switch(config-if)#", line:"switchport mode access\n switchport port-security", blurb:"Enable MAC-based port security", desc:"Requires the port be in access mode first. Limits which/how many MACs may use the port."},
+      {cmd:"port-security maximum", mode:"if", prompt:"Switch(config-if)#", line:"switchport port-security maximum 2", blurb:"Cap the number of learned MACs", desc:"Limits how many devices can appear on the port (e.g. an IP phone + a PC behind it = 2)."},
+      {cmd:"port-security mac-address sticky", mode:"if", prompt:"Switch(config-if)#", line:"switchport port-security mac-address sticky", blurb:"Learn & save MACs dynamically", desc:"Auto-learns the connected MAC and writes it into the running-config so it survives as a 'known good' device."},
+      {cmd:"port-security violation", mode:"if", prompt:"Switch(config-if)#", line:"switchport port-security violation restrict", blurb:"Choose the violation action", desc:"shutdown (err-disable, default) / restrict (drop + log + count) / protect (drop silently)."},
+    ]},
+    { name:"SSH access", cmds:[
+      {cmd:"crypto key generate rsa", mode:"global", prompt:"Switch(config)#", line:"ip domain-name ets.local\n crypto key generate rsa modulus 2048", blurb:"Generate the key pair for SSH", desc:"Needs a hostname and domain name set first. Modulus 2048 (≥1024 required for SSHv2)."},
+      {cmd:"transport input ssh", mode:"sub", prompt:"Switch(config-line)#", line:"line vty 0 4\n login local\n transport input ssh", blurb:"Allow SSH only on the VTY lines", desc:"'transport input ssh' blocks cleartext Telnet. Pair with 'login local' so it authenticates against the username database. Add 'ip ssh version 2' globally."},
+    ]},
+    { name:"Switch protections", cmds:[
+      {cmd:"ip dhcp snooping", mode:"global", prompt:"Switch(config)#", line:"ip dhcp snooping\n ip dhcp snooping vlan 30\n!\ninterface Gi1/0/1\n ip dhcp snooping trust", blurb:"Block rogue DHCP servers", desc:"Untrusted ports may only send DHCP client messages; mark uplinks toward the real server as 'trust'. Foundation for Dynamic ARP Inspection."},
+      {cmd:"show port-security interface", mode:"priv", prompt:"Switch#", line:"show port-security interface Gi0/1", blurb:"Port-security state & violations", desc:"Shows secure MACs, max, current count, last violating MAC, and whether the port is err-disabled."},
+    ]},
+  ]},
+
+{ id:"verify", title:"Verify & Troubleshoot", blurb:"Discovery, reachability, and the everyday show commands.",
+  groups:[
+    { name:"Neighbor discovery", cmds:[
+      {cmd:"show cdp neighbors", mode:"priv", prompt:"Switch#", line:"show cdp neighbors detail", blurb:"See directly connected Cisco devices", desc:"CDP is Cisco-proprietary. 'detail' adds the neighbor's IP and IOS version — great for mapping a closet.",
+        note:"<b>CDP is Cisco-only.</b> For neighbor discovery across the Arista / UniFi gear, enable <b>LLDP</b> ('lldp run') — it's the IEEE 802.1AB standard everyone speaks."},
+      {cmd:"show mac address-table", mode:"priv", prompt:"Switch#", line:"show mac address-table", blurb:"Which MAC is on which port/VLAN", desc:"The L2 forwarding table. Trace where a device is physically connected by its MAC."},
+    ]},
+    { name:"Reachability", cmds:[
+      {cmd:"ping", mode:"priv", prompt:"Router#", line:"ping 10.30.0.1 source Gi0/0", blurb:"Test L3 reachability", desc:"Extended ping lets you set source, size, and count. Five !!!!! = success; ..... = no reply."},
+      {cmd:"traceroute", mode:"priv", prompt:"Router#", line:"traceroute 8.8.8.8", blurb:"Show the hop-by-hop path", desc:"Reveals where packets stop. A row of * * * marks a hop that isn't responding (or is filtering)."},
+    ]},
+    { name:"Device state", cmds:[
+      {cmd:"show version", mode:"priv", prompt:"Switch#", line:"show version", blurb:"IOS version, uptime, model, serial", desc:"Also shows the config register and last reload reason — first thing to grab on a support call."},
+      {cmd:"terminal monitor", mode:"priv", prompt:"Switch#", line:"terminal monitor", blurb:"See log/debug output over SSH", desc:"Console shows logs by default; VTY (SSH) sessions don't until you enable this. 'terminal no monitor' to stop."},
+    ]},
+  ]},
+];
+
+/* ---------- render ---------- */
+const catsEl = document.getElementById('cats');
+const mainEl = document.getElementById('main');
+const searchEl = document.getElementById('search');
+const countEl = document.getElementById('count');
+const legendEl = document.getElementById('legend');
+let activeCat = DATA[0].id;
+
+// legend
+legendEl.innerHTML = Object.values(MODES).map(m =>
+  `<span class="chip"><span class="dot" style="background:var(--${cssVar(m.cls)})"></span>${m.label} <code>${m.legend}</code></span>`
+).join('');
+function cssVar(cls){ return {"m-user":"m-user","m-priv":"m-priv","m-global":"m-global","m-if":"m-if","m-sub":"m-sub"}[cls]; }
+
+// sidebar
+catsEl.innerHTML = DATA.map((c,i)=>
+  `<button data-cat="${c.id}" class="${c.id===activeCat?'active':''}">
+     <span class="idx">${String(i+1).padStart(2,'0')}</span>${c.title}
+   </button>`).join('');
+catsEl.querySelectorAll('button').forEach(b=>{
+  b.addEventListener('click',()=>{ searchEl.value=''; activeCat=b.dataset.cat; renderCat(); });
+});
+
+function cmdCard(cmd){
+  const modeKey = cmd.mode2 || cmd.mode;          // badge shows the mode the command is *entered from*; mode2 = where it lands
+  const m = MODES[cmd.mode];
+  const enteredAt = MODES[modeKey] || m;
+  const promptStr = cmd.prompt || m.prompt;
+  // build console block: prompt + each typed line
+  const lines = cmd.line.split('\n').map((ln,idx)=>{
+    if(idx===0) return `<span class="prompt">${promptStr}</span> <span class="typed">${esc(ln)}</span>`;
+    if(ln.startsWith('!')) return `<span class="comment">${esc(ln)}</span>`;
+    // continuation lines: show a generic sub-prompt
+    return `<span class="prompt">${promptStr}</span> <span class="typed">${esc(ln)}</span>`;
+  }).join('\n');
+
+  return `<div class="cmd ${m.cls}" data-search="${esc((cmd.cmd+' '+cmd.blurb+' '+cmd.desc+' '+cmd.line).toLowerCase())}">
+    <button class="cmd-head" aria-expanded="false">
+      <span class="syntax">${esc(cmd.cmd)}</span>
+      <span class="blurb">${esc(cmd.blurb)}</span>
+      <span class="badge">${enteredAt.label}</span>
+      <span class="chev">▸</span>
+    </button>
+    <div class="cmd-body"><div class="cmd-body-inner">
+      <div class="console">${lines}</div>
+      <p class="meta"><span class="k">What it does · </span>${esc(cmd.desc)}</p>
+      ${cmd.note?`<div class="note"><b>ETS / real world · </b>${cmd.note}</div>`:''}
+    </div></div>
+  </div>`;
+}
+
+function renderCat(){
+  const c = DATA.find(x=>x.id===activeCat);
+  catsEl.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.cat===activeCat));
+  countEl.textContent='';
+  mainEl.innerHTML =
+    `<div class="cat-intro"><h2>${esc(c.title)}</h2><p>${esc(c.blurb)}</p></div>` +
+    c.groups.map(g=>
+      `<section class="group"><h3>${esc(g.name)}</h3>${g.cmds.map(cmdCard).join('')}</section>`
+    ).join('');
+  wireAccordions();
+  window.scrollTo({top:0,behavior:'auto'});
+}
+
+function renderSearch(q){
+  catsEl.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+  const hits=[];
+  DATA.forEach(c=>{
+    c.groups.forEach(g=>{
+      g.cmds.forEach(cmd=>{
+        const hay=(cmd.cmd+' '+cmd.blurb+' '+cmd.desc+' '+cmd.line).toLowerCase();
+        if(hay.includes(q)) hits.push({cmd,cat:c.title});
+      });
+    });
+  });
+  countEl.textContent = hits.length ? `${hits.length} match${hits.length>1?'es':''}` : '';
+  if(!hits.length){
+    mainEl.innerHTML = `<div class="empty">No commands match “${esc(q)}”.<br>Try a topic like <code>vlan</code>, <code>ospf</code>, <code>acl</code>, or <code>dhcp</code>.</div>`;
+    return;
+  }
+  mainEl.innerHTML =
+    `<div class="cat-intro"><h2>Results</h2><p>${hits.length} command${hits.length>1?'s':''} matching “${esc(q)}”.</p></div>` +
+    hits.map(h=>cmdCard(h.cmd)).join('');
+  wireAccordions(true);
+}
+
+function wireAccordions(openAll){
+  mainEl.querySelectorAll('.cmd').forEach(card=>{
+    const head=card.querySelector('.cmd-head');
+    head.addEventListener('click',()=>{
+      const open=card.classList.toggle('open');
+      head.setAttribute('aria-expanded',open?'true':'false');
+    });
+    if(openAll){ card.classList.add('open'); head.setAttribute('aria-expanded','true'); }
+  });
+}
+
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+let t;
+searchEl.addEventListener('input',()=>{
+  clearTimeout(t);
+  t=setTimeout(()=>{
+    const q=searchEl.value.trim().toLowerCase();
+    if(q.length===0){ renderCat(); }
+    else { renderSearch(q); }
+  },90);
+});
+searchEl.addEventListener('keydown',e=>{ if(e.key==='Escape'){ searchEl.value=''; renderCat(); } });
+
+renderCat();
+</script>
+</body>
+</html>
