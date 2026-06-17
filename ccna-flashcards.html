@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCNA Flashcards — Recall Drills</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1218;
+    --bg-2:#121a22;
+    --surface:#161f29;
+    --surface-2:#1b2734;
+    --line:#243140;
+    --line-soft:#1d2733;
+    --ink:#e8eef4;
+    --ink-mute:#8a99a8;
+    --ink-faint:#5c6b7a;
+    --accent:#f2b23e;             /* flashcards' own identity = recall gold */
+    --good:#54e08a;
+    --again:#f2876b;
+
+    --radius:14px;
+    --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:'IBM Plex Sans',system-ui,sans-serif;
+    --display:'Space Grotesk',var(--sans);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1100px 560px at 78% -12%, #1c2530 0%, rgba(28,37,48,0) 55%),
+      var(--bg);
+    color:var(--ink);font-family:var(--sans);line-height:1.5;
+    -webkit-font-smoothing:antialiased;min-height:100vh;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:0 20px 64px;}
+
+  /* ---------- site nav ---------- */
+  .sitenav{position:sticky;top:0;z-index:50;border-bottom:1px solid var(--line-soft);
+    background:rgba(13,18,24,.78);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);}
+  .sitenav-inner{max-width:880px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:18px;height:54px;}
+  .sitenav .brand{font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink-mute);text-decoration:none;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;}
+  .sitenav .brand b{color:var(--accent);font-weight:600;}
+  .sitenav .navlinks{display:flex;gap:4px;margin-left:auto;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .sitenav .navlinks a{font-family:var(--sans);font-size:13.5px;font-weight:500;color:var(--ink-mute);
+    text-decoration:none;padding:7px 13px;border-radius:8px;white-space:nowrap;transition:color .12s,background .12s;}
+  .sitenav .navlinks a:hover{color:var(--ink);background:var(--surface);}
+  .sitenav .navlinks a.active{color:var(--accent);background:var(--surface-2);}
+
+  /* header */
+  header.top{padding:34px 0 6px;}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 10px;}
+  .eyebrow b{color:var(--accent);font-weight:500;}
+  h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,4.4vw,42px);letter-spacing:-.02em;margin:0;}
+  .tagline{color:var(--ink-mute);margin:12px 0 0;max-width:60ch;font-size:15px;}
+
+  /* ---------- HOME: deck grid ---------- */
+  .decks-head{display:flex;align-items:baseline;justify-content:space-between;margin:30px 0 14px;gap:16px;flex-wrap:wrap;}
+  .decks-head h2{font-family:var(--display);font-weight:600;font-size:18px;margin:0;letter-spacing:-.01em;}
+  .shuffle-toggle{display:inline-flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-mute);cursor:pointer;user-select:none;}
+  .shuffle-toggle .box{width:34px;height:20px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);position:relative;transition:background .15s,border-color .15s;}
+  .shuffle-toggle .box::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--ink-faint);transition:transform .16s,background .16s;}
+  .shuffle-toggle.on .box{background:rgba(242,178,62,.25);border-color:var(--accent);}
+  .shuffle-toggle.on .box::after{transform:translateX(14px);background:var(--accent);}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
+  .deck{
+    text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 16px 15px;cursor:pointer;font-family:inherit;color:inherit;
+    border-top:3px solid var(--da,var(--accent));transition:transform .12s,border-color .12s,background .12s;
+    display:flex;flex-direction:column;gap:7px;min-height:118px;
+  }
+  .deck:hover{transform:translateY(-2px);background:var(--surface-2);}
+  .deck .dname{font-family:var(--display);font-weight:600;font-size:16px;color:var(--ink);}
+  .deck .dblurb{font-size:12.5px;color:var(--ink-mute);flex:1;line-height:1.45;}
+  .deck .dcount{font-family:var(--mono);font-size:11.5px;color:var(--da,var(--accent));letter-spacing:.04em;}
+
+  .mixed{
+    margin-top:12px;width:100%;background:linear-gradient(90deg,rgba(242,178,62,.10),rgba(242,178,62,0));
+    border:1px dashed var(--accent);border-radius:var(--radius);padding:15px 18px;cursor:pointer;
+    color:var(--ink);font-family:inherit;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;
+  }
+  .mixed:hover{background:rgba(242,178,62,.14);}
+  .mixed .ml{font-family:var(--display);font-weight:600;font-size:15px;}
+  .mixed .mr{font-family:var(--mono);font-size:12px;color:var(--accent);}
+
+  /* ---------- STUDY ---------- */
+  .study{display:none;}
+  .study.active{display:block;}
+  .home.hidden{display:none;}
+
+  .studybar{display:flex;align-items:center;gap:14px;margin:26px 0 6px;flex-wrap:wrap;}
+  .back{
+    background:var(--surface);border:1px solid var(--line);border-radius:8px;color:var(--ink-mute);
+    font-family:var(--mono);font-size:12.5px;padding:8px 12px;cursor:pointer;transition:color .12s,border-color .12s;
+  }
+  .back:hover{color:var(--ink);border-color:var(--accent);}
+  .studybar .deckname{font-family:var(--display);font-weight:600;font-size:17px;color:var(--ink);}
+  .studybar .pos{font-family:var(--mono);font-size:13px;color:var(--ink-mute);margin-left:auto;}
+  .tally{display:flex;gap:8px;}
+  .tally span{font-family:var(--mono);font-size:12px;padding:3px 9px;border-radius:6px;border:1px solid var(--line);}
+  .tally .tg{color:var(--good);} .tally .tr{color:var(--again);}
+
+  .progress{height:4px;background:var(--surface-2);border-radius:999px;overflow:hidden;margin:14px 0 22px;}
+  .progress .bar{height:100%;background:var(--accent);width:0;transition:width .25s;border-radius:999px;}
+
+  /* the flip card = signature element */
+  .stage{perspective:1600px;}
+  .card{
+    position:relative;width:100%;min-height:330px;cursor:pointer;
+    transform-style:preserve-3d;transition:transform .5s cubic-bezier(.2,.7,.2,1);
+  }
+  .card.flipped{transform:rotateY(180deg);}
+  .face{
+    position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+    border:1px solid var(--line);border-radius:18px;padding:34px 32px;
+    display:flex;flex-direction:column;background:var(--surface);overflow:hidden;
+  }
+  .face::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--ca,var(--accent));}
+  .face .tag{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);}
+  .front{justify-content:center;align-items:center;text-align:center;}
+  .front .q{font-family:var(--display);font-weight:600;font-size:clamp(20px,3.2vw,27px);line-height:1.3;color:var(--ink);max-width:30ch;}
+  .front .fliphint{position:absolute;bottom:18px;left:0;right:0;text-align:center;font-family:var(--mono);font-size:11.5px;color:var(--ink-faint);}
+  .back{transform:rotateY(180deg);justify-content:center;}
+  .back .tag{position:absolute;top:18px;left:32px;color:var(--ca,var(--accent));}
+  .back .a{font-family:var(--mono);font-weight:600;font-size:clamp(26px,5vw,40px);color:var(--ca,var(--accent));line-height:1.1;letter-spacing:-.01em;word-break:break-word;}
+  .back .detail{margin-top:16px;font-size:15px;color:var(--ink-mute);line-height:1.55;max-width:46ch;}
+
+  /* controls */
+  .controls{display:flex;align-items:center;gap:10px;margin-top:20px;}
+  .nav{background:var(--surface);border:1px solid var(--line);border-radius:10px;color:var(--ink);font-family:var(--mono);font-size:18px;width:46px;height:46px;cursor:pointer;transition:border-color .12s,background .12s;flex:none;}
+  .nav:hover{border-color:var(--accent);background:var(--surface-2);}
+  .nav:disabled{opacity:.32;cursor:default;}
+  .mark{flex:1;height:46px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-family:var(--sans);font-weight:600;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:transform .1s,border-color .12s,background .12s;}
+  .mark .kbd{font-family:var(--mono);font-size:11px;color:var(--ink-faint);border:1px solid var(--line);border-radius:4px;padding:1px 5px;}
+  .mark.good:hover{border-color:var(--good);color:var(--good);}
+  .mark.again:hover{border-color:var(--again);color:var(--again);}
+  .mark:active{transform:scale(.98);}
+
+  .hint{margin-top:16px;text-align:center;font-family:var(--mono);font-size:11.5px;color:var(--ink-faint);}
+  .hint b{color:var(--ink-mute);font-weight:500;}
+
+  /* summary */
+  .summary{display:none;text-align:center;padding:40px 10px;}
+  .summary.show{display:block;}
+  .summary h2{font-family:var(--display);font-size:26px;margin:0 0 6px;}
+  .summary .scoreline{font-family:var(--mono);font-size:15px;color:var(--ink-mute);margin:0 0 26px;}
+  .summary .scoreline b.g{color:var(--good);} .summary .scoreline b.r{color:var(--again);}
+  .summary .acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+  .summary button{font-family:var(--sans);font-weight:600;font-size:14px;padding:12px 18px;border-radius:10px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink);transition:border-color .12s,background .12s;}
+  .summary button.primary{border-color:var(--accent);background:rgba(242,178,62,.12);color:var(--accent);}
+  .summary button:hover{background:var(--surface-2);}
+  .summary button.primary:hover{background:rgba(242,178,62,.2);}
+  .summary button:disabled{opacity:.35;cursor:default;}
+
+  footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--line-soft);color:var(--ink-faint);font-size:12.5px;}
+
+  @media (max-width:560px){
+    .studybar .pos{margin-left:0;}
+    .mark .kbd{display:none;}
+    .face{padding:26px 22px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important;}
+    .card{transition:none!important;}
+  }
+</style>
+</head>
+<body>
+<nav class="sitenav">
+  <div class="sitenav-inner">
+    <a class="brand" href="index.html">CCNA <b>200-301</b></a>
+    <div class="navlinks">
+      <a href="index.html">Command Console</a>
+      <a href="ccna-flashcards.html" class="active">Flashcards</a>
+      <a href="subnetting-practice.html">Subnetting</a>
+    </div>
+  </div>
+</nav>
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">Cisco · CCNA <b>200-301</b> · recall drills</p>
+    <h1>Flashcards</h1>
+    <p class="tagline">The numbers you just have to memorize — admin distances, 802.11 standards, port numbers, timers. Tap a card to flip, then mark whether it stuck.</p>
+  </header>
+
+  <!-- HOME -->
+  <section class="home" id="home">
+    <div class="decks-head">
+      <h2>Pick a deck</h2>
+      <div class="shuffle-toggle" id="shuffle" role="checkbox" aria-checked="false" tabindex="0">
+        <span class="box"></span> Shuffle cards
+      </div>
+    </div>
+    <div class="grid" id="deckGrid"></div>
+    <button class="mixed" id="mixedBtn">
+      <span class="ml">⤬ Mixed deck — everything, shuffled</span>
+      <span class="mr" id="mixedCount"></span>
+    </button>
+  </section>
+
+  <!-- STUDY -->
+  <section class="study" id="study">
+    <div class="studybar">
+      <button class="back" id="backBtn">← Decks</button>
+      <span class="deckname" id="studyDeckName"></span>
+      <div class="tally"><span class="tg" id="tallyGood">✓ 0</span><span class="tr" id="tallyAgain">↻ 0</span></div>
+      <span class="pos" id="pos"></span>
+    </div>
+    <div class="progress"><div class="bar" id="bar"></div></div>
+
+    <div id="cardArea">
+      <div class="stage">
+        <div class="card" id="card">
+          <div class="face front">
+            <span class="tag" id="frontTag"></span>
+            <div class="q" id="qText"></div>
+            <div class="fliphint">tap / press space to flip</div>
+          </div>
+          <div class="face back">
+            <span class="tag">Answer</span>
+            <div class="a" id="aText"></div>
+            <div class="detail" id="dText"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="nav" id="prevBtn" title="Previous (←)">‹</button>
+        <button class="mark again" id="againBtn">Review again <span class="kbd">2</span></button>
+        <button class="mark good" id="goodBtn">Got it <span class="kbd">1</span></button>
+        <button class="nav" id="nextBtn" title="Next (→)">›</button>
+      </div>
+      <p class="hint"><b>space</b> flip · <b>← →</b> move · <b>1</b> got it · <b>2</b> review</p>
+    </div>
+
+    <div class="summary" id="summary">
+      <h2 id="sumTitle">Deck complete</h2>
+      <p class="scoreline" id="sumScore"></p>
+      <div class="acts">
+        <button class="primary" id="reviewBtn">Drill the missed cards</button>
+        <button id="restartBtn">Restart deck</button>
+        <button id="homeBtn">Back to decks</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>Built for memorization. Values are standard CCNA 200-301 references (IEEE / IETF / Cisco defaults).</footer>
+</div>
+
+<script>
+/* ---------------- DECKS ---------------- */
+const DECKS = [
+{ id:"ad", name:"Administrative Distance", accent:"#f2b23e",
+  blurb:"Lower AD = more trusted. The tiebreaker when two sources offer the same prefix.",
+  cards:[
+    {q:"What is the administrative distance of a directly connected route?", a:"0", detail:"Most trusted of all — a connected interface."},
+    {q:"AD of a static route?", a:"1", detail:"Manually configured, trusted just below connected."},
+    {q:"AD of an EIGRP summary route?", a:"5", detail:"More trusted than any dynamic protocol's normal routes."},
+    {q:"AD of an external BGP (eBGP) route?", a:"20", detail:"Routes learned from a different autonomous system."},
+    {q:"AD of internal EIGRP?", a:"90", detail:"Routes within the same EIGRP autonomous system."},
+    {q:"AD of OSPF?", a:"110", detail:"Link-state, single value for internal and external."},
+    {q:"AD of IS-IS?", a:"115", detail:"Sits just above OSPF."},
+    {q:"AD of RIP?", a:"120", detail:"Distance-vector, hop-count metric."},
+    {q:"AD of external EIGRP?", a:"170", detail:"Redistributed routes from outside the EIGRP AS — much less trusted than internal (90)."},
+    {q:"AD of internal BGP (iBGP)?", a:"200", detail:"Routes from a peer in the same AS — least trusted dynamic route."},
+    {q:"What AD value means 'unreachable / never install'?", a:"255", detail:"The route will not be used."},
+    {q:"What does a LOWER administrative distance mean?", a:"More trustworthy", detail:"When multiple protocols offer the same destination, the router installs the route with the lowest AD."},
+  ]},
+
+{ id:"wifi", name:"802.11 Wi-Fi Standards", accent:"#38bdf8",
+  blurb:"Bands, max data rates, and the Wi-Fi 4/5/6 marketing names.",
+  cards:[
+    {q:"802.11a — band and max data rate?", a:"5 GHz · 54 Mbps", detail:"Ratified 1999. Higher band, shorter range, less congestion."},
+    {q:"802.11b — band and max data rate?", a:"2.4 GHz · 11 Mbps", detail:"1999. Longer range but slow and crowded."},
+    {q:"802.11g — band and max data rate?", a:"2.4 GHz · 54 Mbps", detail:"2003. Backward compatible with 802.11b."},
+    {q:"802.11n is also known as…?", a:"Wi-Fi 4", detail:"2009. Dual-band (2.4 & 5 GHz), up to 600 Mbps. Introduced MIMO."},
+    {q:"802.11ac is also known as…?", a:"Wi-Fi 5", detail:"2013. 5 GHz only, up to ~6.9 Gbps. Added MU-MIMO (downlink) and wider 80/160 MHz channels."},
+    {q:"802.11ax is also known as…?", a:"Wi-Fi 6", detail:"2019+. Dual-band (6E adds 6 GHz), up to ~9.6 Gbps. OFDMA for dense environments."},
+    {q:"Which 802.11 standard introduced MIMO?", a:"802.11n (Wi-Fi 4)", detail:"Multiple antennas / spatial streams to boost throughput."},
+    {q:"The three non-overlapping channels in 2.4 GHz (North America)?", a:"1, 6, 11", detail:"20 MHz channels spaced so they don't interfere."},
+    {q:"Main advantage of 5 GHz over 2.4 GHz?", a:"More non-overlapping channels", detail:"Less interference and higher throughput — at the cost of shorter range."},
+    {q:"802.11ax key efficiency feature for crowded areas?", a:"OFDMA", detail:"Lets one channel serve multiple clients at once — big in high-density MDU/AP deployments."},
+  ]},
+
+{ id:"ports", name:"Port Numbers", accent:"#54e08a",
+  blurb:"Well-known TCP/UDP ports for the protocols CCNA expects you to know cold.",
+  cards:[
+    {q:"FTP ports (and transport)?", a:"20 / 21 · TCP", detail:"20 = data, 21 = control."},
+    {q:"SSH port?", a:"22 · TCP", detail:"Encrypted remote management — the right way to reach a device CLI."},
+    {q:"Telnet port?", a:"23 · TCP", detail:"Cleartext remote access — avoid in favor of SSH."},
+    {q:"SMTP port?", a:"25 · TCP", detail:"Sending email between servers."},
+    {q:"DNS port?", a:"53 · TCP/UDP", detail:"UDP for lookups, TCP for zone transfers / large responses."},
+    {q:"DHCP ports?", a:"67 / 68 · UDP", detail:"67 = server, 68 = client."},
+    {q:"TFTP port?", a:"69 · UDP", detail:"Trivial FTP — used for IOS image and config transfers."},
+    {q:"HTTP port?", a:"80 · TCP", detail:"Unencrypted web."},
+    {q:"HTTPS port?", a:"443 · TCP", detail:"TLS-encrypted web."},
+    {q:"NTP port?", a:"123 · UDP", detail:"Time synchronization — critical for logs and certs."},
+    {q:"SNMP ports?", a:"161 / 162 · UDP", detail:"161 = polling the agent, 162 = traps/notifications to the manager."},
+    {q:"Syslog port?", a:"514 · UDP", detail:"Sending log messages to a collector."},
+    {q:"RADIUS ports (auth / accounting)?", a:"1812 / 1813 · UDP", detail:"Legacy ports were 1645 / 1646."},
+    {q:"TACACS+ port?", a:"49 · TCP", detail:"Cisco AAA protocol; encrypts the whole payload, separates AAA functions."},
+    {q:"CAPWAP ports (WLC ↔ AP)?", a:"5246 / 5247 · UDP", detail:"5246 = control, 5247 = data tunnel."},
+  ]},
+
+{ id:"ospf", name:"OSPF Essentials", accent:"#a98bf5",
+  blurb:"Metrics, multicast addresses, timers, and election rules.",
+  cards:[
+    {q:"OSPF administrative distance?", a:"110", detail:"Same value for internal and external OSPF routes."},
+    {q:"How is OSPF cost calculated?", a:"reference BW ÷ interface BW", detail:"Default reference bandwidth = 100 Mbps (10⁸ bps). Lower cost is preferred."},
+    {q:"OSPF multicast addresses?", a:"224.0.0.5 / 224.0.0.6", detail:".5 = all OSPF routers, .6 = DR and BDR."},
+    {q:"OSPF hello / dead timers on broadcast & point-to-point?", a:"10 / 40 sec", detail:"Dead is 4× hello. Both ends must match to form an adjacency."},
+    {q:"How does OSPF choose its Router ID?", a:"Manual → highest loopback → highest active IP", detail:"Set router-id explicitly for predictability."},
+    {q:"DR election tiebreaker?", a:"Highest priority, then highest RID", detail:"Default priority is 1; priority 0 means the router never becomes DR/BDR."},
+    {q:"Which area must every other area connect to?", a:"Area 0 (backbone)", detail:"Inter-area traffic transits the backbone."},
+    {q:"What algorithm does OSPF run?", a:"Dijkstra / SPF", detail:"Shortest Path First — it's a link-state protocol."},
+    {q:"On what network types does OSPF elect a DR/BDR?", a:"Broadcast & non-broadcast multi-access", detail:"Not on point-to-point links."},
+  ]},
+
+{ id:"eigrp", name:"EIGRP Essentials", accent:"#f2876b",
+  blurb:"The composite metric, multicast, timers, and successor concepts.",
+  cards:[
+    {q:"EIGRP administrative distances (internal / external)?", a:"90 / 170", detail:"Internal = 90, redistributed external = 170. Summary routes = 5."},
+    {q:"EIGRP multicast address?", a:"224.0.0.10", detail:"Used for hellos and updates."},
+    {q:"Which metrics does EIGRP use by default?", a:"Bandwidth + Delay", detail:"K1 and K3 = 1, others 0. The K-values must match between neighbors."},
+    {q:"What algorithm does EIGRP use?", a:"DUAL", detail:"Diffusing Update Algorithm — gives loop-free paths and fast reconvergence."},
+    {q:"What is a 'successor' in EIGRP?", a:"The best/primary route", detail:"The route with the lowest feasible distance, installed in the routing table."},
+    {q:"What is a 'feasible successor'?", a:"A loop-free backup route", detail:"A precomputed backup that meets the feasibility condition — no recomputation needed if the successor fails."},
+    {q:"EIGRP hello / hold timers on high-bandwidth links?", a:"5 / 15 sec", detail:"On low-speed NBMA (≤ T1) they default to 60 / 180."},
+    {q:"Must the AS number match between EIGRP neighbors?", a:"Yes", detail:"Mismatched AS numbers won't form an adjacency (unlike OSPF's locally-significant process ID)."},
+  ]},
+
+{ id:"stp", name:"Spanning Tree Numbers", accent:"#6fb3f0",
+  blurb:"Default priority, timers, port states, and path costs.",
+  cards:[
+    {q:"Default STP bridge priority?", a:"32768", detail:"Adjustable only in increments of 4096."},
+    {q:"What makes up the Bridge ID?", a:"Priority + ext-sys-id + MAC", detail:"Lowest Bridge ID wins the root election."},
+    {q:"STP hello / forward-delay / max-age timers?", a:"2 / 15 / 20 sec", detail:"Classic 802.1D defaults."},
+    {q:"802.1D port states?", a:"Block · Listen · Learn · Forward", detail:"(plus disabled). RSTP collapses these to discarding / learning / forwarding."},
+    {q:"STP port cost at 100 Mbps?", a:"19", detail:"10 Mbps = 100, 100 Mbps = 19, 1 Gbps = 4, 10 Gbps = 2."},
+    {q:"STP port cost at 1 Gbps?", a:"4", detail:"Lower cost is preferred toward the root."},
+    {q:"How is the root bridge chosen?", a:"Lowest Bridge ID", detail:"Compare priority first, then the lowest MAC address."},
+    {q:"What does PortFast do?", a:"Skips listening/learning", detail:"Brings an access (edge) port straight to forwarding — never use on switch-to-switch links."},
+    {q:"What does BPDU Guard do?", a:"Err-disables on a BPDU", detail:"Shuts down a PortFast port the moment it receives a BPDU — stops rogue switches."},
+    {q:"RSTP port roles?", a:"Root · Designated · Alternate · Backup", detail:"Rapid PVST+ converges much faster than classic STP."},
+  ]},
+
+{ id:"ipv4", name:"IPv4 Addressing & Ranges", accent:"#e0b341",
+  blurb:"Private ranges, special-use blocks, classes, and host math.",
+  cards:[
+    {q:"The three RFC 1918 private ranges?", a:"10/8 · 172.16/12 · 192.168/16", detail:"10.0.0.0–10.255, 172.16.0.0–172.31, 192.168.0.0–192.168.255."},
+    {q:"RFC 6598 shared (CGN) address space?", a:"100.64.0.0/10", detail:"Carrier-grade NAT space between subscriber and ISP — not routed on the public internet."},
+    {q:"APIPA range?", a:"169.254.0.0/16", detail:"Self-assigned when a host can't reach DHCP — a sign of a DHCP problem."},
+    {q:"IPv4 loopback range?", a:"127.0.0.0/8", detail:"127.0.0.1 is the classic localhost."},
+    {q:"Class A / B / C first-octet ranges?", a:"1–126 / 128–191 / 192–223", detail:"127 is reserved for loopback; D (224–239) = multicast, E (240–255) = experimental."},
+    {q:"Default masks for class A / B / C?", a:"/8 · /16 · /24", detail:"255.0.0.0, 255.255.0.0, 255.255.255.0."},
+    {q:"How many usable hosts in a /30?", a:"2", detail:"4 total addresses minus network and broadcast — the classic point-to-point link."},
+    {q:"What's special about a /31?", a:"2 usable, no waste", detail:"RFC 3021 allows /31 on point-to-point links — both addresses are usable."},
+    {q:"Formula for usable hosts per subnet?", a:"2^(32 − prefix) − 2", detail:"Subtract 2 for the network and broadcast addresses."},
+  ]},
+
+{ id:"ipv6", name:"IPv6 Essentials", accent:"#3fd0c9",
+  blurb:"Address types, special prefixes, and how hosts self-configure.",
+  cards:[
+    {q:"How many bits in an IPv6 address?", a:"128 bits", detail:"Written as eight groups of four hex digits."},
+    {q:"Global unicast prefix?", a:"2000::/3", detail:"Internet-routable addresses — the IPv6 equivalent of public IPs."},
+    {q:"Link-local prefix?", a:"fe80::/10", detail:"Auto-assigned on every interface; valid only on the local link."},
+    {q:"Unique local address prefix?", a:"fc00::/7", detail:"Private IPv6 (typically fd00::/8 in practice) — like RFC 1918."},
+    {q:"IPv6 multicast prefix?", a:"ff00::/8", detail:"IPv6 has no broadcast — multicast does that job."},
+    {q:"IPv6 loopback and unspecified addresses?", a:"::1 and ::", detail:"::1 = loopback, :: = unspecified (all zeros)."},
+    {q:"All-nodes and all-routers multicast?", a:"ff02::1 / ff02::2", detail:"Link-local scope — used by NDP."},
+    {q:"What does EUI-64 do?", a:"Builds the host ID from the MAC", detail:"Splits the 48-bit MAC, inserts fffe in the middle, and flips the 7th bit."},
+    {q:"SLAAC relies on which protocol?", a:"NDP Router Advertisements", detail:"A host learns the /64 prefix from RAs and forms its own address — no DHCP needed."},
+  ]},
+
+{ id:"vlan", name:"VLAN & Trunking", accent:"#f59e42",
+  blurb:"VLAN ranges, the 802.1Q tag, and native-VLAN facts.",
+  cards:[
+    {q:"Normal VLAN range?", a:"1–1005", detail:"Stored in vlan.dat / VLAN database."},
+    {q:"Extended VLAN range?", a:"1006–4094", detail:"Needs VTP transparent mode on older platforms."},
+    {q:"Default VLAN on a Cisco switch?", a:"VLAN 1", detail:"All ports start here; best practice is to move user traffic off it."},
+    {q:"Which VLANs are reserved?", a:"1002–1005", detail:"Legacy Token Ring / FDDI defaults — can't be deleted on older IOS."},
+    {q:"Size of an 802.1Q tag?", a:"4 bytes", detail:"Inserted into the Ethernet frame; carries the 12-bit VLAN ID."},
+    {q:"How does a trunk treat the native VLAN?", a:"Sent untagged", detail:"Defaults to VLAN 1; must match on both ends. Change it to harden against VLAN hopping."},
+    {q:"Maximum number of VLANs (12-bit ID)?", a:"4094", detail:"IDs 0 and 4095 are reserved."},
+    {q:"What is DTP and who supports it?", a:"Cisco trunk negotiation", detail:"Dynamic Trunking Protocol — Cisco-proprietary; disable with switchport nonegotiate on multivendor links."},
+  ]},
+
+{ id:"wlan", name:"WLAN / Wireless Concepts", accent:"#4da8e8",
+  blurb:"AP architectures, WLC tunneling, and security modes.",
+  cards:[
+    {q:"What protocol connects a lightweight AP to a WLC?", a:"CAPWAP", detail:"Control And Provisioning of Wireless Access Points — UDP 5246 (control) / 5247 (data)."},
+    {q:"Lightweight vs autonomous AP?", a:"WLC-managed vs standalone", detail:"Lightweight APs get config from a controller; autonomous APs hold their own config."},
+    {q:"What is the split-MAC architecture?", a:"WLC handles management, AP handles RF", detail:"Real-time functions stay on the AP; management/control move to the WLC."},
+    {q:"WPA2 vs WPA3 encryption?", a:"AES/CCMP vs SAE", detail:"WPA3 uses Simultaneous Authentication of Equals — stronger handshake than WPA2-Personal."},
+    {q:"AP mode that keeps switching traffic locally if the WLC is unreachable?", a:"FlexConnect", detail:"Useful for branch sites; 'local' mode tunnels all traffic back to the WLC."},
+    {q:"What does an SSID identify?", a:"The wireless network name", detail:"The name clients see and join; multiple SSIDs can map to different VLANs."},
+  ]},
+
+{ id:"fhrp", name:"First-Hop Redundancy", accent:"#e879c4",
+  blurb:"HSRP, VRRP, GLBP — gateway redundancy protocols.",
+  cards:[
+    {q:"Is HSRP a standard or Cisco-proprietary?", a:"Cisco-proprietary", detail:"Hot Standby Router Protocol — one active, one standby gateway."},
+    {q:"HSRP virtual MAC format?", a:"0000.0C07.ACxx", detail:"xx = the HSRP group number in hex."},
+    {q:"Which FHRP is an open standard?", a:"VRRP", detail:"Virtual Router Redundancy Protocol (IETF). Roles are master / backup."},
+    {q:"Which Cisco FHRP load-balances across gateways?", a:"GLBP", detail:"Gateway Load Balancing Protocol — uses an AVG to hand out multiple virtual MACs."},
+    {q:"Default HSRP priority, and how to win the active role?", a:"100 (higher wins)", detail:"Set a higher priority and enable preempt to take over when it comes back online."},
+  ]},
+
+{ id:"cable", name:"Cabling & Physical", accent:"#9fd34a",
+  blurb:"Cable types, distances, and when to use which.",
+  cards:[
+    {q:"When do you use a straight-through cable?", a:"Unlike devices", detail:"PC↔switch, switch↔router. (Auto-MDIX often makes this moot on modern gear.)"},
+    {q:"When do you use a crossover cable?", a:"Like devices", detail:"Switch↔switch, PC↔PC, PC↔router (router is treated like a host)."},
+    {q:"Maximum UTP copper run length?", a:"100 meters", detail:"Beyond that, signal degrades — switch to fiber."},
+    {q:"Single-mode vs multimode fiber?", a:"Long-haul vs short-haul", detail:"SMF carries farther with a laser source; MMF is cheaper for shorter runs with LED/VCSEL."},
+    {q:"What cable connects to a device's console port (classic)?", a:"Rollover cable", detail:"RJ-45 rollover to a serial/USB adapter for out-of-band CLI access."},
+    {q:"What does Auto-MDIX do?", a:"Auto-detects cable type", detail:"The port figures out straight-through vs crossover automatically."},
+  ]},
+];
+
+/* ---------------- STATE ---------------- */
+let shuffleOn = false;
+let queue = [];          // current cards in order
+let idx = 0;
+let status = {};         // cardKey -> 'good' | 'again'
+let currentDeckName = "";
+let currentAccent = "var(--accent)";
+
+const $ = id => document.getElementById(id);
+
+/* build home */
+function renderHome(){
+  const grid = $('deckGrid');
+  grid.innerHTML = DECKS.map(d=>
+    `<button class="deck" data-deck="${d.id}" style="--da:${d.accent}">
+       <span class="dname">${d.name}</span>
+       <span class="dblurb">${d.blurb}</span>
+       <span class="dcount">${d.cards.length} cards</span>
+     </button>`).join('');
+  grid.querySelectorAll('.deck').forEach(b=>b.addEventListener('click',()=>startDeck(b.dataset.deck)));
+  const total = DECKS.reduce((n,d)=>n+d.cards.length,0);
+  $('mixedCount').textContent = total + ' cards';
+}
+
+function shuffle(arr){
+  const a=arr.slice();
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+function startDeck(deckId){
+  let cards, name, accent;
+  if(deckId==='__mixed'){
+    cards = DECKS.flatMap(d=>d.cards.map(c=>({...c,_acc:d.accent})));
+    cards = shuffle(cards);
+    name = "Mixed deck"; accent = "var(--accent)";
+  } else {
+    const d = DECKS.find(x=>x.id===deckId);
+    cards = d.cards.map(c=>({...c,_acc:d.accent}));
+    if(shuffleOn) cards = shuffle(cards);
+    name = d.name; accent = d.accent;
+  }
+  queue = cards; idx = 0; status = {}; currentDeckName = name; currentAccent = accent;
+  $('home').classList.add('hidden');
+  $('study').classList.add('active');
+  $('summary').classList.remove('show');
+  $('cardArea').style.display='';
+  $('studyDeckName').textContent = name;
+  document.documentElement.style.setProperty('--ca-deck', accent);
+  renderCard();
+}
+
+function key(){ return idx; }   // queue index is unique per session
+
+function renderCard(){
+  const c = queue[idx];
+  const card = $('card');
+  card.classList.remove('flipped');
+  // accent per card (mixed deck colors each card by its source)
+  const acc = c._acc || currentAccent;
+  card.querySelectorAll('.face').forEach(f=>f.style.setProperty('--ca',acc));
+  $('frontTag').textContent = currentDeckName==='Mixed deck' ? 'Recall' : currentDeckName;
+  $('qText').textContent = c.q;
+  $('aText').textContent = c.a;
+  $('dText').textContent = c.detail || '';
+  $('pos').textContent = (idx+1)+' / '+queue.length;
+  $('bar').style.width = (((idx)/queue.length)*100)+'%';
+  updateTally();
+  $('prevBtn').disabled = idx===0;
+}
+
+function flip(){ $('card').classList.toggle('flipped'); }
+
+function go(delta){
+  const ni = idx+delta;
+  if(ni<0) return;
+  if(ni>=queue.length){ finish(); return; }
+  idx = ni; renderCard();
+}
+
+function mark(s){
+  status[key()] = s;
+  updateTally();
+  // brief beat so the user sees it register, then advance
+  setTimeout(()=>go(1),140);
+}
+
+function updateTally(){
+  const vals = Object.values(status);
+  $('tallyGood').textContent = '✓ ' + vals.filter(v=>v==='good').length;
+  $('tallyAgain').textContent = '↻ ' + vals.filter(v=>v==='again').length;
+}
+
+function finish(){
+  $('cardArea').style.display='none';
+  $('bar').style.width='100%';
+  const vals = Object.values(status);
+  const good = vals.filter(v=>v==='good').length;
+  const again = vals.filter(v=>v==='again').length;
+  const unseen = queue.length - vals.length;
+  $('sumScore').innerHTML =
+    `<b class="g">${good}</b> got it · <b class="r">${again}</b> to review`
+    + (unseen?` · ${unseen} skipped`:'');
+  $('reviewBtn').disabled = again===0;
+  $('summary').classList.add('show');
+  $('pos').textContent = queue.length+' / '+queue.length;
+}
+
+/* summary actions */
+$('reviewBtn').addEventListener('click',()=>{
+  const missed = queue.filter((c,i)=>status[i]==='again');
+  if(!missed.length) return;
+  queue = shuffleOn ? shuffle(missed) : missed;
+  idx=0; status={};
+  $('summary').classList.remove('show');
+  $('cardArea').style.display='';
+  renderCard();
+});
+$('restartBtn').addEventListener('click',()=>{
+  idx=0; status={};
+  if(shuffleOn) queue = shuffle(queue);
+  $('summary').classList.remove('show');
+  $('cardArea').style.display='';
+  renderCard();
+});
+$('homeBtn').addEventListener('click',toHome);
+$('backBtn').addEventListener('click',toHome);
+function toHome(){
+  $('study').classList.remove('active');
+  $('home').classList.remove('hidden');
+}
+
+/* wire controls */
+$('card').addEventListener('click',flip);
+$('prevBtn').addEventListener('click',()=>go(-1));
+$('nextBtn').addEventListener('click',()=>go(1));
+$('goodBtn').addEventListener('click',()=>mark('good'));
+$('againBtn').addEventListener('click',()=>mark('again'));
+$('mixedBtn').addEventListener('click',()=>startDeck('__mixed'));
+
+const shToggle = $('shuffle');
+function setShuffle(v){ shuffleOn=v; shToggle.classList.toggle('on',v); shToggle.setAttribute('aria-checked',v); }
+shToggle.addEventListener('click',()=>setShuffle(!shuffleOn));
+shToggle.addEventListener('keydown',e=>{ if(e.key===' '||e.key==='Enter'){e.preventDefault();setShuffle(!shuffleOn);} });
+
+/* keyboard in study mode */
+document.addEventListener('keydown',e=>{
+  if(!$('study').classList.contains('active')) return;
+  if($('summary').classList.contains('show')) return;
+  if(e.key===' '||e.key==='Enter'){ e.preventDefault(); flip(); }
+  else if(e.key==='ArrowRight'){ e.preventDefault(); go(1); }
+  else if(e.key==='ArrowLeft'){ e.preventDefault(); go(-1); }
+  else if(e.key==='1'){ e.preventDefault(); mark('good'); }
+  else if(e.key==='2'){ e.preventDefault(); mark('again'); }
+});
+
+renderHome();
+</script>
+</body>
+</html>

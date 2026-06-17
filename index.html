@@ -48,6 +48,19 @@
 
   .wrap{max-width:1180px;margin:0 auto;padding:0 20px 64px;}
 
+  /* ---------- site nav ---------- */
+  .sitenav{position:sticky;top:0;z-index:50;border-bottom:1px solid var(--line-soft);
+    background:rgba(13,18,24,.78);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);}
+  .sitenav-inner{max-width:1180px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:18px;height:54px;}
+  .sitenav .brand{font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink-mute);text-decoration:none;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;}
+  .sitenav .brand b{color:var(--accent);font-weight:600;}
+  .sitenav .navlinks{display:flex;gap:4px;margin-left:auto;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .sitenav .navlinks a{font-family:var(--sans);font-size:13.5px;font-weight:500;color:var(--ink-mute);
+    text-decoration:none;padding:7px 13px;border-radius:8px;white-space:nowrap;transition:color .12s,background .12s;}
+  .sitenav .navlinks a:hover{color:var(--ink);background:var(--surface);}
+  .sitenav .navlinks a.active{color:var(--accent);background:var(--surface-2);}
+
   /* ---------- header ---------- */
   header.top{padding:34px 0 22px;border-bottom:1px solid var(--line-soft);}
   .eyebrow{
@@ -200,6 +213,16 @@
 </style>
 </head>
 <body>
+<nav class="sitenav">
+  <div class="sitenav-inner">
+    <a class="brand" href="index.html">CCNA <b>200-301</b></a>
+    <div class="navlinks">
+      <a href="index.html" class="active">Command Console</a>
+      <a href="ccna-flashcards.html">Flashcards</a>
+      <a href="subnetting-practice.html">Subnetting</a>
+    </div>
+  </div>
+</nav>
 <div class="wrap">
   <header class="top">
     <p class="eyebrow">Cisco IOS · CCNA <b>200-301</b> · CLI reference</p>
