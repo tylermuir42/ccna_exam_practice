@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCNA IPv6 Subnetting — Practice & Shortcuts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1218;
+    --bg-2:#121a22;
+    --surface:#161f29;
+    --surface-2:#1b2734;
+    --line:#243140;
+    --line-soft:#1d2733;
+    --ink:#e8eef4;
+    --ink-mute:#8a99a8;
+    --ink-faint:#5c6b7a;
+    --accent:#e879c4;            /* IPv6's own identity = hextet pink */
+    --good:#54e08a;
+    --bad:#f2876b;
+
+    --radius:14px;
+    --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:'IBM Plex Sans',system-ui,sans-serif;
+    --display:'Space Grotesk',var(--sans);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+  body{
+    background:
+      radial-gradient(1100px 560px at 78% -12%, #2a2034 0%, rgba(42,32,52,0) 55%),
+      var(--bg);
+    color:var(--ink);font-family:var(--sans);line-height:1.5;
+    -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;min-height:100vh;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:0 20px 64px;}
+
+  /* ---------- site nav ---------- */
+  .sitenav{position:sticky;top:0;z-index:50;border-bottom:1px solid var(--line-soft);
+    background:rgba(13,18,24,.78);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);}
+  .sitenav-inner{max-width:880px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:18px;height:54px;}
+  .sitenav .brand{font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink-mute);text-decoration:none;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;}
+  .sitenav .brand b{color:var(--accent);font-weight:600;}
+  .sitenav .navlinks{display:flex;gap:4px;margin-left:auto;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .sitenav .navlinks a{font-family:var(--sans);font-size:13.5px;font-weight:500;color:var(--ink-mute);
+    text-decoration:none;padding:7px 13px;border-radius:8px;white-space:nowrap;transition:color .12s,background .12s;}
+  .sitenav .navlinks a:hover{color:var(--ink);background:var(--surface);}
+  .sitenav .navlinks a.active{color:var(--accent);background:var(--surface-2);}
+
+  /* header */
+  header.top{padding:34px 0 6px;}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 10px;}
+  .eyebrow b{color:var(--accent);font-weight:500;}
+  h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,4.4vw,42px);letter-spacing:-.02em;margin:0;}
+  .tagline{color:var(--ink-mute);margin:12px 0 0;max-width:62ch;font-size:15px;}
+
+  /* ---------- topic filter ---------- */
+  .filters{margin:26px 0 6px;}
+  .filters .fhead{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 11px;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{
+    font-family:var(--sans);font-size:13px;font-weight:500;color:var(--ink-mute);cursor:pointer;user-select:none;
+    background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 13px;
+    transition:color .12s,border-color .12s,background .12s;
+  }
+  .chip:hover{color:var(--ink);}
+  .chip.on{color:var(--accent);border-color:var(--accent);background:rgba(232,121,196,.12);}
+
+  /* ---------- score strip ---------- */
+  .scorebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:22px 0 14px;}
+  .stat{font-family:var(--mono);font-size:12.5px;color:var(--ink-mute);background:var(--surface);
+    border:1px solid var(--line);border-radius:8px;padding:6px 11px;}
+  .stat b{font-weight:600;}
+  .stat .g{color:var(--good);} .stat .r{color:var(--bad);} .stat .a{color:var(--accent);}
+  .scorebar .spacer{flex:1;}
+  .reset{font-family:var(--mono);font-size:12px;color:var(--ink-faint);background:transparent;border:1px solid var(--line-soft);
+    border-radius:8px;padding:6px 11px;cursor:pointer;transition:color .12s,border-color .12s;}
+  .reset:hover{color:var(--ink-mute);border-color:var(--line);}
+
+  /* ---------- question card ---------- */
+  .qcard{
+    background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);
+    border-radius:18px;padding:26px 26px 24px;
+  }
+  .qkind{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 14px;}
+  .qtext{font-family:var(--display);font-weight:600;font-size:clamp(18px,2.6vw,22px);line-height:1.35;margin:0;color:var(--ink);}
+  .given{
+    font-family:var(--mono);font-size:clamp(16px,2.8vw,22px);font-weight:600;color:var(--ink);
+    background:#0a0f15;border:1px solid var(--line-soft);border-radius:10px;
+    padding:14px 16px;margin:16px 0 0;letter-spacing:.01em;word-break:break-all;
+  }
+
+  /* answer input */
+  .answer{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  .answer input{
+    flex:1;min-width:180px;background:var(--bg-2);border:1px solid var(--line);border-radius:10px;
+    color:var(--ink);font-family:var(--mono);font-size:16px;padding:13px 15px;outline:none;
+    transition:border-color .15s,box-shadow .15s;
+  }
+  .answer input::placeholder{color:var(--ink-faint);}
+  .answer input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,121,196,.16);}
+  .answer input.correct{border-color:var(--good);box-shadow:0 0 0 3px rgba(84,224,138,.16);}
+  .answer input.wrong{border-color:var(--bad);box-shadow:0 0 0 3px rgba(242,135,107,.16);}
+  .btn{
+    font-family:var(--sans);font-weight:600;font-size:14px;padding:0 20px;border-radius:10px;cursor:pointer;
+    border:1px solid var(--accent);background:rgba(232,121,196,.14);color:var(--accent);transition:background .12s,opacity .12s;
+    flex:none;min-height:48px;
+  }
+  .btn:hover{background:rgba(232,121,196,.24);}
+  .btn.ghost{border-color:var(--line);background:var(--surface);color:var(--ink-mute);}
+  .btn.ghost:hover{background:var(--surface-2);color:var(--ink);}
+
+  /* feedback */
+  .feedback{margin-top:18px;display:none;}
+  .feedback.show{display:block;}
+  .verdict{font-family:var(--display);font-weight:600;font-size:16px;display:flex;align-items:center;gap:9px;}
+  .verdict.ok{color:var(--good);} .verdict.no{color:var(--bad);}
+  .correct-ans{font-family:var(--mono);font-size:15px;color:var(--ink);margin-top:8px;word-break:break-all;}
+  .correct-ans b{color:var(--accent);font-weight:600;}
+
+  .solve{margin-top:16px;}
+  .solve-h{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 11px;}
+  .steps-ol{margin:0;padding:0;list-style:none;counter-reset:s;}
+  .steps-ol li{position:relative;padding:2px 0 0 36px;margin:0 0 11px;font-size:14px;line-height:1.6;color:var(--ink-mute);}
+  .steps-ol li::before{
+    counter-increment:s;content:counter(s);position:absolute;left:0;top:0;
+    width:24px;height:24px;border-radius:7px;background:rgba(232,121,196,.13);border:1px solid var(--accent);
+    color:var(--accent);font-family:var(--mono);font-size:12px;display:flex;align-items:center;justify-content:center;
+  }
+  .steps-ol code, .shortcut code, .correct-ans code{
+    font-family:var(--mono);font-size:12.5px;color:var(--ink);background:#0a0f15;
+    border:1px solid var(--line-soft);border-radius:4px;padding:1px 5px;word-break:break-all;
+  }
+  .shortcut{margin-top:6px;font-size:13.5px;line-height:1.6;color:#f6dcef;
+    background:rgba(232,121,196,.08);border:1px solid rgba(232,121,196,.3);border-radius:10px;padding:11px 14px;}
+  .shortcut .sc{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);
+    display:block;margin-bottom:5px;}
+  .feedback .next{margin-top:16px;}
+
+  .hint{margin-top:16px;text-align:center;font-family:var(--mono);font-size:11.5px;color:var(--ink-faint);}
+  .hint b{color:var(--ink-mute);font-weight:500;}
+
+  footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--line-soft);color:var(--ink-faint);font-size:12.5px;}
+
+  @media (max-width:560px){
+    .wrap{padding:0 15px 48px;}
+    .sitenav-inner{padding:0 15px;gap:10px;height:52px;}
+    .sitenav .navlinks a{padding:7px 10px;font-size:13px;}
+    header.top{padding:24px 0 6px;}
+    .tagline{font-size:14px;}
+    .filters{margin-top:22px;}
+    .chip{font-size:12.5px;padding:6px 11px;}
+    .scorebar{gap:8px;margin:18px 0 14px;}
+    .scorebar .spacer{display:none;}
+    .stat{font-size:12px;padding:5px 9px;flex:1 1 auto;text-align:center;}
+    .reset{flex:1 1 100%;}
+    .qcard{padding:22px 18px;}
+    .answer input{flex:1 1 100%;min-width:0;}
+    .btn{flex:1;padding:0 14px;}
+    .hint{display:none;}
+  }
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important;} }
+</style>
+</head>
+<body>
+<nav class="sitenav">
+  <div class="sitenav-inner">
+    <a class="brand" href="index.html">CCNA <b>200-301</b></a>
+    <div class="navlinks">
+      <a href="index.html">Command Console</a>
+      <a href="lab-review.html">Lab Review</a>
+      <a href="ccna-flashcards.html">Flashcards</a>
+      <a href="subnetting-practice.html">IPv4 Subnetting</a>
+      <a href="ipv6-subnetting.html" class="active">IPv6 Subnetting</a>
+    </div>
+  </div>
+</nav>
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">Cisco · CCNA <b>200-301</b> · IPv6 drills</p>
+    <h1>IPv6 Subnetting</h1>
+    <p class="tagline">Randomly generated IPv6 questions — compression, address types, prefixes, EUI-64, and solicited-node multicast. Every answer comes with a step-by-step solution and the shortcut you'd actually use on the exam. Pick the topics to drill.</p>
+  </header>
+
+  <section class="filters">
+    <p class="fhead">Question types</p>
+    <div class="chips" id="chips"></div>
+  </section>
+
+  <div class="scorebar">
+    <span class="stat">Answered <b id="sTotal">0</b></span>
+    <span class="stat g">Correct <b id="sGood">0</b></span>
+    <span class="stat r">Missed <b id="sBad">0</b></span>
+    <span class="stat a">Streak <b id="sStreak">0</b></span>
+    <span class="spacer"></span>
+    <button class="reset" id="resetBtn">Reset score</button>
+  </div>
+
+  <div class="qcard">
+    <p class="qkind" id="qKind"></p>
+    <p class="qtext" id="qText"></p>
+    <div class="given" id="qGiven"></div>
+
+    <form class="answer" id="answerForm" autocomplete="off">
+      <input id="answerInput" type="text" placeholder="Your answer…" spellcheck="false" autocapitalize="off" aria-label="Your answer">
+      <button class="btn" id="checkBtn" type="submit">Check</button>
+      <button class="btn ghost" id="revealBtn" type="button">Show answer</button>
+    </form>
+
+    <div class="feedback" id="feedback">
+      <div class="verdict" id="verdict"></div>
+      <div class="correct-ans" id="correctAns"></div>
+      <div class="solve">
+        <p class="solve-h">Step-by-step</p>
+        <ol class="steps-ol" id="steps"></ol>
+        <div class="shortcut" id="shortcut"></div>
+      </div>
+      <button class="btn next" id="nextBtn" type="button">Next question →</button>
+    </div>
+  </div>
+
+  <p class="hint"><b>Enter</b> check / next · addresses ignore case &amp; accept compressed or expanded form · prefixes accept <b>64</b> or <b>/64</b></p>
+
+  <footer>Generated questions follow RFC 4291 address architecture and RFC 5952 canonical text rules. Compress/expand answers are graded against the canonical form; other address answers accept any equivalent notation.</footer>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+/* ---------------- IPv6 MATH ---------------- */
+function parseV6(addr){
+  addr=String(addr).trim().toLowerCase().split('/')[0].trim();
+  if(addr==='') return null;
+  let parts;
+  const dc=addr.split('::');
+  if(dc.length>2) return null;
+  if(dc.length===2){
+    const hh=dc[0]===''?[]:dc[0].split(':');
+    const tt=dc[1]===''?[]:dc[1].split(':');
+    const miss=8-(hh.length+tt.length);
+    if(miss<1) return null;
+    parts=hh.concat(Array(miss).fill('0'),tt);
+  } else parts=addr.split(':');
+  if(parts.length!==8) return null;
+  const nums=[];
+  for(const p of parts){ if(!/^[0-9a-f]{1,4}$/.test(p)) return null; nums.push(parseInt(p,16)); }
+  return nums;
+}
+function fullV6(n){ return n.map(x=>x.toString(16).padStart(4,'0')).join(':'); }
+function compressV6(n){
+  const hex=n.map(x=>x.toString(16));
+  let best=-1,bestLen=0,curStart=-1,curLen=0;
+  for(let i=0;i<8;i++){
+    if(n[i]===0){ if(curLen===0)curStart=i; curLen++; if(curLen>bestLen){bestLen=curLen;best=curStart;} }
+    else curLen=0;
+  }
+  if(bestLen>=2) return hex.slice(0,best).join(':')+'::'+hex.slice(best+bestLen).join(':');
+  return hex.join(':');
+}
+function networkV6(nums,prefix){
+  const out=nums.slice();
+  for(let i=0;i<8;i++){
+    const start=i*16;
+    if(prefix>=start+16) continue;
+    if(prefix<=start){ out[i]=0; continue; }
+    const keep=prefix-start;
+    out[i]=nums[i]&((0xffff<<(16-keep))&0xffff);
+  }
+  return out;
+}
+/* random nonzero hextet, biased toward small values so leading-zero practice shows up */
+function rh(){
+  const r=Math.random();
+  let v = r<0.3 ? randInt(0,0xff) : r<0.55 ? randInt(0,0xfff) : randInt(0,0xffff);
+  return v===0 ? 0x42 : v;
+}
+const rnz = rh;
+/* address with exactly one all-zero run → unambiguous compress/expand */
+function genCompressible(){
+  const n=[]; for(let i=0;i<8;i++) n.push(rh());
+  const runLen=randInt(2,4), start=randInt(0,8-runLen);
+  for(let i=0;i<8;i++) if(n[i]===0) n[i]=0x1234;   // clear incidental zeros first
+  for(let i=start;i<start+runLen;i++) n[i]=0;       // then carve the single run
+  return n;
+}
+
+/* ---------------- QUESTION GENERATORS ---------------- */
+function makeCompress(){
+  const n=genCompressible();
+  return { type:'compress', kindLabel:'Compress', check:'literal',
+    text:'Compress this address to its shortest valid (canonical) form.',
+    given:fullV6(n), answer:compressV6(n),
+    steps:[
+      `Drop the leading zeros inside each hextet — e.g. <code>0db8</code> → <code>db8</code>, <code>0000</code> → <code>0</code>.`,
+      `Find the longest run of consecutive all-zero hextets and replace just that run with <code>::</code>.`,
+      `Result: <code>${compressV6(n)}</code>.`
+    ],
+    shortcut:`<code>::</code> may be used <strong>once</strong>, and only for a run of <strong>2 or more</strong> zero groups. On a tie for longest run, compress the <strong>leftmost</strong>. Always lowercase (RFC 5952).` };
+}
+function makeExpand(){
+  const n=genCompressible();
+  const shown=compressV6(n).split('::')[0].split(':').filter(Boolean).length + compressV6(n).split('::').slice(1).join('').split(':').filter(Boolean).length;
+  const hidden=8-shown;
+  return { type:'expand', kindLabel:'Expand', check:'literal',
+    text:'Write this address in full — every hextet, all leading zeros.',
+    given:compressV6(n), answer:fullV6(n),
+    steps:[
+      `<code>::</code> stands for the missing all-zero hextets. There are ${shown} groups shown, so <code>::</code> hides <code>${hidden}</code> zero group${hidden===1?'':'s'}.`,
+      `Pad every hextet back to 4 digits with leading zeros — <code>db8</code> → <code>0db8</code>.`,
+      `Result: <code>${fullV6(n)}</code>.`
+    ],
+    shortcut:`The <code>::</code> always expands to <code>(8 − groups shown)</code> zero hextets. Count the groups you can see, subtract from 8 — that's how many <code>0000</code>s to drop in.` };
+}
+function makeType(){
+  const defs=[
+    {name:'Global unicast', accept:['globalunicast','global','gua','unicast'],
+      gen:()=>[randInt(0x2000,0x3fff),0x0db8,rnz(),0,0,rnz(),rnz(),rnz()],
+      cue:'starts with a <code>2</code> or <code>3</code> — the <code>2000::/3</code> range.'},
+    {name:'Link-local', accept:['linklocal','ll'],
+      gen:()=>[randInt(0xfe80,0xfebf),0,0,0,rnz(),rnz(),rnz(),rnz()],
+      cue:'starts with <code>fe8</code>–<code>feb</code> — the <code>fe80::/10</code> range.'},
+    {name:'Unique local', accept:['uniquelocal','ula'],
+      gen:()=>[randInt(0xfc00,0xfdff),rnz(),rnz(),0,0,rnz(),rnz(),rnz()],
+      cue:'starts with <code>fc</code> or <code>fd</code> — the <code>fc00::/7</code> range.'},
+    {name:'Multicast', accept:['multicast','mcast'],
+      gen:()=>[randInt(0xff00,0xffff),0,0,0,0,0,rnz(),rnz()],
+      cue:'starts with <code>ff</code> — the <code>ff00::/8</code> range.'},
+    {name:'Loopback', accept:['loopback','localhost'],
+      gen:()=>[0,0,0,0,0,0,0,1], cue:'is exactly <code>::1</code>.'},
+    {name:'Unspecified', accept:['unspecified','unspec','allzeros'],
+      gen:()=>[0,0,0,0,0,0,0,0], cue:'is all zeros, <code>::</code>.'}
+  ];
+  const d=defs[randInt(0,defs.length-1)], n=d.gen();
+  return { type:'type', kindLabel:'Address type', check:'word',
+    text:'What type of IPv6 address is this?',
+    given:compressV6(n), answer:d.name, accept:d.accept,
+    steps:[
+      `Identify the type purely from the leading bits / first hextet — the host portion is irrelevant.`,
+      `This one ${d.cue}`,
+      `So it is a <code>${d.name}</code> address.`
+    ],
+    shortcut:`Lock in the prefixes: <code>2000::/3</code> global · <code>fe80::/10</code> link-local · <code>fc00::/7</code> unique-local (you'll see <code>fd</code>) · <code>ff00::/8</code> multicast · <code>::1</code> loopback · <code>::</code> unspecified.` };
+}
+function makeNetwork(){
+  const p=[32,36,40,44,48,52,56,60,64][randInt(0,8)];
+  const n=[0x2001,0x0db8,rnz(),rnz(),rnz(),rnz(),rnz(),rnz()];
+  const ans=compressV6(networkV6(n,p))+'/'+p;
+  const digits=p/4;
+  return { type:'network', kindLabel:'Network prefix', check:'v6eq',
+    text:'What is the network (subnet) prefix of this address?',
+    given:compressV6(n)+'/'+p, answer:ans,
+    steps:[
+      `Each hex digit is 4 bits, so a <code>/${p}</code> keeps the first <code>${digits}</code> hex digits (${p} ÷ 4 = ${digits}).`,
+      `Zero out everything after that boundary — the remaining <code>${32-digits}</code> hex digits become 0.`,
+      `Compress what's left: <code>${ans}</code>.`
+    ],
+    shortcut:`<code>/64</code> = keep the first 4 hextets (global prefix + subnet ID); the last 4 hextets are the interface ID and zero out. Any nibble-aligned prefix is just "keep N digits, blank the rest."` };
+}
+function makeEui(){
+  const bytes=[]; for(let i=0;i<6;i++) bytes.push(randInt(0,255));
+  const macStr=bytes.map(b=>b.toString(16).padStart(2,'0')).join(':').toUpperCase();
+  const flipped=bytes[0]^0x02;
+  const idBytes=[flipped,bytes[1],bytes[2],0xff,0xfe,bytes[3],bytes[4],bytes[5]];
+  const ans=idBytes.map(b=>b.toString(16).padStart(2,'0')).join('').match(/.{4}/g).join(':');
+  const b0=bytes[0].toString(16).padStart(2,'0'), b0f=flipped.toString(16).padStart(2,'0');
+  const first24=bytes.slice(0,3).map(b=>b.toString(16).padStart(2,'0')).join('');
+  const last24=bytes.slice(3).map(b=>b.toString(16).padStart(2,'0')).join('');
+  return { type:'eui64', kindLabel:'EUI-64 interface ID', check:'hex',
+    text:'Build the 64-bit interface ID from this MAC using EUI-64.',
+    given:macStr, answer:ans,
+    steps:[
+      `Split the 48-bit MAC down the middle: <code>${first24}</code> | <code>${last24}</code>.`,
+      `Insert <code>FFFE</code> between the two halves: <code>${first24}fffe${last24}</code>.`,
+      `Flip the 7th bit (the U/L bit) of the first byte: <code>${b0}</code> → <code>${b0f}</code>.`,
+      `Regroup into four hextets: <code>${ans}</code>.`
+    ],
+    shortcut:`Flipping the U/L bit only changes the 2nd hex digit of the first byte: <code>0↔2 · 1↔3 · 4↔6 · 5↔7 · 8↔a · 9↔b · c↔e · d↔f</code>. Here <code>${b0}</code> → <code>${b0f}</code>.` };
+}
+function makeSolicited(){
+  const n=[randInt(0x2000,0x3fff),0x0db8,rnz(),0,0,rnz(),rnz(),rnz()];
+  const last6=((((n[6]&0xff)<<16)|n[7])>>>0).toString(16).padStart(6,'0');
+  const last24=(((n[6]&0xff)<<16)|n[7])>>>0;
+  const arr=[0xff02,0,0,0,0,1,0xff00|((last24>>16)&0xff),last24&0xffff];
+  const ans=compressV6(arr);
+  const xx=last6.slice(0,2), yyyy=last6.slice(2);
+  return { type:'solicited', kindLabel:'Solicited-node multicast', check:'v6eq',
+    text:'What is the solicited-node multicast address for this address?',
+    given:compressV6(n), answer:ans,
+    steps:[
+      `Take the last 24 bits — the last 6 hex digits — of the address: <code>${last6}</code>.`,
+      `Append them to the fixed prefix <code>ff02::1:ff</code>.`,
+      `Result: <code>ff02::1:ff${xx}:${yyyy}</code> → <code>${ans}</code>.`
+    ],
+    shortcut:`Solicited-node is always <code>ff02::1:ff</code> + the last <strong>6 hex digits</strong> of the address. NDP uses it instead of IPv4's ARP broadcast.` };
+}
+function makeSubnets(){
+  const oldp=[32,40,44,48,56][randInt(0,4)];
+  let newp=oldp+[4,8,12,16][randInt(0,3)]; if(newp>64) newp=64;
+  const bits=newp-oldp, count=Math.pow(2,bits);
+  return { type:'subnets', kindLabel:'Subnet count', check:'num',
+    text:`How many /${newp} subnets fit inside a /${oldp}?`,
+    given:`/${oldp}  ⟶  /${newp}`, answer:String(count),
+    steps:[
+      `Borrowed bits = new prefix − old prefix = <code>${newp} − ${oldp} = ${bits}</code>.`,
+      `Subnets = 2 raised to the borrowed bits = <code>2^${bits} = ${count.toLocaleString()}</code>.`
+    ],
+    shortcut:`Each extra bit doubles the count; each extra <em>nibble</em> (4 bits) ×16. The classic <code>/48 → /64</code> borrows 16 bits = <code>65,536</code> subnets.` };
+}
+
+const TYPES = {
+  compress:  {label:'Compress',        make:makeCompress},
+  expand:    {label:'Expand',          make:makeExpand},
+  type:      {label:'Address type',    make:makeType},
+  network:   {label:'Network prefix',  make:makeNetwork},
+  eui64:     {label:'EUI-64',          make:makeEui},
+  solicited: {label:'Solicited-node',  make:makeSolicited},
+  subnets:   {label:'Subnet count',    make:makeSubnets}
+};
+const TYPE_KEYS = Object.keys(TYPES);
+
+/* ---------------- STATE ---------------- */
+let enabled = new Set(TYPE_KEYS);
+let current = null, answered = false;
+let score = {total:0, good:0, bad:0, streak:0};
+
+/* ---------------- CHECKING ---------------- */
+function normLiteral(s){ return String(s).trim().toLowerCase().replace(/\s+/g,''); }
+function eqV6(a,b){ const pa=parseV6(a), pb=parseV6(b); return !!(pa&&pb) && fullV6(pa)===fullV6(pb); }
+function isCorrect(input){
+  switch(current.check){
+    case 'v6eq':    return eqV6(input, current.answer);
+    case 'literal': return normLiteral(input)===normLiteral(current.answer);
+    case 'hex':     return normLiteral(input).replace(/[^0-9a-f]/g,'')===normLiteral(current.answer).replace(/[^0-9a-f]/g,'');
+    case 'num':     return parseInt(String(input).replace(/[, ]/g,''),10)===parseInt(current.answer,10);
+    case 'word':    return current.accept.includes(normLiteral(input).replace(/-/g,''));
+    default:        return false;
+  }
+}
+const PLACEHOLDER = {
+  type:"e.g. global unicast, link-local…", subnets:"a number", eui64:"e.g. 021a:2bff:fe3c:4d5e",
+};
+
+/* ---------------- RENDER ---------------- */
+function renderChips(){
+  $('chips').innerHTML = TYPE_KEYS.map(k=>
+    `<button class="chip ${enabled.has(k)?'on':''}" data-type="${k}">${TYPES[k].label}</button>`).join('');
+  $('chips').querySelectorAll('.chip').forEach(c=>{
+    c.addEventListener('click',()=>{
+      const k=c.dataset.type;
+      if(enabled.has(k)){ if(enabled.size>1) enabled.delete(k); }   // never allow zero
+      else enabled.add(k);
+      renderChips();
+    });
+  });
+}
+function newQuestion(){
+  const keys=[...enabled];
+  const type=keys[randInt(0,keys.length-1)];
+  current=TYPES[type].make();
+  answered=false;
+  $('qKind').textContent=current.kindLabel;
+  $('qText').textContent=current.text;
+  $('qGiven').textContent=current.given;
+  const inp=$('answerInput');
+  inp.value=''; inp.className=''; inp.disabled=false;
+  inp.placeholder=PLACEHOLDER[type]||'Your answer…';
+  inp.focus();
+  $('feedback').classList.remove('show');
+  $('checkBtn').style.display='';
+  $('revealBtn').style.display='';
+}
+function reveal(asCorrect, gaveUp){
+  answered=true;
+  const inp=$('answerInput');
+  inp.disabled=true;
+  $('checkBtn').style.display='none';
+  $('revealBtn').style.display='none';
+
+  const v=$('verdict');
+  if(gaveUp){ inp.classList.add('wrong'); v.className='verdict no'; v.innerHTML='○ &nbsp;Answer revealed'; }
+  else if(asCorrect){ inp.classList.add('correct'); v.className='verdict ok'; v.innerHTML='✓ &nbsp;Correct'; }
+  else { inp.classList.add('wrong'); v.className='verdict no'; v.innerHTML='✗ &nbsp;Not quite'; }
+
+  $('correctAns').innerHTML=`Answer: <b>${esc(current.answer)}</b>`;
+  $('steps').innerHTML=current.steps.map(s=>`<li>${s}</li>`).join('');
+  $('shortcut').innerHTML=`<span class="sc">Exam shortcut</span>${current.shortcut}`;
+  $('feedback').classList.add('show');
+
+  score.total++;
+  if(asCorrect && !gaveUp){ score.good++; score.streak++; }
+  else { score.bad++; score.streak=0; }
+  renderScore();
+  $('nextBtn').focus();
+}
+function renderScore(){
+  $('sTotal').textContent=score.total;
+  $('sGood').textContent=score.good;
+  $('sBad').textContent=score.bad;
+  $('sStreak').textContent=score.streak;
+}
+
+/* ---------------- WIRE ---------------- */
+$('answerForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  if(answered){ newQuestion(); return; }
+  if($('answerInput').value.trim()==='') return;
+  reveal(isCorrect($('answerInput').value), false);
+});
+$('revealBtn').addEventListener('click',()=>{ if(!answered) reveal(false,true); });
+$('nextBtn').addEventListener('click',newQuestion);
+$('resetBtn').addEventListener('click',()=>{ score={total:0,good:0,bad:0,streak:0}; renderScore(); });
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter' && answered && document.activeElement!==$('answerInput')){ e.preventDefault(); newQuestion(); }
+});
+
+renderChips();
+renderScore();
+newQuestion();
+</script>
+</body>
+</html>
