@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCNA Lab Review — Scenario Walkthroughs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1218;
+    --bg-2:#121a22;
+    --surface:#161f29;
+    --surface-2:#1b2734;
+    --line:#243140;
+    --line-soft:#1d2733;
+    --ink:#e8eef4;
+    --ink-mute:#8a99a8;
+    --ink-faint:#5c6b7a;
+    --accent:#33c9b7;            /* lab review's own identity = terminal teal */
+
+    /* mode palette — mirrors the Command Console color key */
+    --m-user:#7e8e9e;     /* User EXEC        >        */
+    --m-priv:#38bdf8;     /* Privileged EXEC  #        */
+    --m-global:#f2b23e;   /* Global Config    (config)# */
+    --m-if:#54e08a;       /* Interface Config (config-if)# */
+    --m-sub:#a98bf5;      /* Other sub-config (router/line/vlan/subif)# */
+
+    --radius:12px;
+    --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:'IBM Plex Sans',system-ui,sans-serif;
+    --display:'Space Grotesk',var(--sans);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #14262a 0%, rgba(20,38,42,0) 55%),
+      var(--bg);
+    color:var(--ink);font-family:var(--sans);line-height:1.5;
+    -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;min-height:100vh;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px 64px;}
+
+  /* ---------- site nav ---------- */
+  .sitenav{position:sticky;top:0;z-index:50;border-bottom:1px solid var(--line-soft);
+    background:rgba(13,18,24,.78);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);}
+  .sitenav-inner{max-width:1180px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:18px;height:54px;}
+  .sitenav .brand{font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink-mute);text-decoration:none;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;}
+  .sitenav .brand b{color:var(--accent);font-weight:600;}
+  .sitenav .navlinks{display:flex;gap:4px;margin-left:auto;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .sitenav .navlinks a{font-family:var(--sans);font-size:13.5px;font-weight:500;color:var(--ink-mute);
+    text-decoration:none;padding:7px 13px;border-radius:8px;white-space:nowrap;transition:color .12s,background .12s;}
+  .sitenav .navlinks a:hover{color:var(--ink);background:var(--surface);}
+  .sitenav .navlinks a.active{color:var(--accent);background:var(--surface-2);}
+
+  /* ---------- header ---------- */
+  header.top{padding:34px 0 22px;border-bottom:1px solid var(--line-soft);}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 10px;}
+  .eyebrow b{color:var(--accent);font-weight:500;}
+  h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,4.4vw,44px);letter-spacing:-.02em;margin:0;line-height:1.04;}
+  .tagline{color:var(--ink-mute);margin:12px 0 0;max-width:64ch;font-size:15px;}
+
+  /* mode legend */
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;}
+  .legend .chip{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);
+    border-radius:999px;padding:6px 12px 6px 10px;font-size:12.5px;color:var(--ink-mute);}
+  .legend .dot{width:9px;height:9px;border-radius:50%;flex:none;}
+  .legend code{font-family:var(--mono);color:var(--ink);font-size:11.5px;}
+
+  /* ---------- layout ---------- */
+  .grid{display:grid;grid-template-columns:260px 1fr;gap:28px;margin-top:26px;align-items:start;}
+
+  nav.labs{position:sticky;top:72px;}
+  nav.labs .navhead{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink-faint);padding:0 12px 10px;}
+  nav.labs button{
+    display:flex;align-items:baseline;gap:10px;width:100%;text-align:left;
+    background:transparent;border:0;border-left:2px solid transparent;
+    color:var(--ink-mute);font-family:var(--sans);font-size:13.5px;font-weight:500;
+    padding:8px 12px;cursor:pointer;border-radius:0 7px 7px 0;transition:background .12s,color .12s,border-color .12s;
+  }
+  nav.labs button .idx{font-family:var(--mono);font-size:11px;color:var(--ink-faint);width:20px;flex:none;}
+  nav.labs button:hover{background:var(--surface);color:var(--ink);}
+  nav.labs button.active{background:var(--surface-2);color:var(--ink);border-left-color:var(--accent);}
+  nav.labs button.active .idx{color:var(--accent);}
+
+  /* ---------- main ---------- */
+  main{min-width:0;}
+  .lab-intro{margin:2px 0 8px;}
+  .lab-intro .kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin:0 0 9px;}
+  .lab-intro h2{font-family:var(--display);font-weight:600;font-size:25px;margin:0;letter-spacing:-.01em;}
+  .lab-meta{margin:14px 0 0;display:flex;flex-direction:column;gap:9px;}
+  .lab-meta .row{display:flex;gap:10px;font-size:14px;line-height:1.5;}
+  .lab-meta .row .label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ink-faint);flex:none;width:74px;padding-top:2px;}
+  .lab-meta .row .val{color:var(--ink-mute);}
+  .lab-meta .row .val b{color:var(--ink);font-weight:600;}
+
+  .steps{margin-top:24px;counter-reset:step;}
+  .step{position:relative;margin-bottom:14px;background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--radius);padding:18px 20px 20px;}
+  .step .shead{display:flex;align-items:center;gap:12px;margin:0 0 12px;}
+  .step .num{counter-increment:step;flex:none;width:28px;height:28px;border-radius:8px;background:rgba(51,201,183,.14);
+    border:1px solid var(--accent);color:var(--accent);font-family:var(--mono);font-size:13px;font-weight:600;
+    display:flex;align-items:center;justify-content:center;}
+  .step .num::before{content:counter(step);}
+  .step .stitle{font-family:var(--display);font-weight:600;font-size:16.5px;color:var(--ink);letter-spacing:-.01em;}
+
+  .think{display:flex;gap:10px;font-size:14px;color:var(--ink-mute);line-height:1.6;
+    background:rgba(51,201,183,.05);border-left:2px solid var(--accent);border-radius:0 8px 8px 0;padding:10px 13px;}
+  .think .tk{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);
+    flex:none;padding-top:3px;}
+  .think b{color:var(--ink);font-weight:600;}
+
+  .console{
+    font-family:var(--mono);font-size:13px;background:#0a0f15;border:1px solid var(--line-soft);
+    border-radius:8px;padding:13px 15px;margin:13px 0 0;white-space:pre-wrap;word-break:break-word;line-height:1.7;
+  }
+  .console .prompt{font-weight:500;}
+  .console .prompt.m-user{color:var(--m-user);}
+  .console .prompt.m-priv{color:var(--m-priv);}
+  .console .prompt.m-global{color:var(--m-global);}
+  .console .prompt.m-if{color:var(--m-if);}
+  .console .prompt.m-sub{color:var(--m-sub);}
+  .console .typed{color:var(--ink);}
+  .console .comment{color:var(--ink-faint);font-style:italic;}
+
+  .verifybox{margin-top:14px;font-size:13.5px;color:#cdebe5;background:rgba(51,201,183,.08);
+    border:1px solid rgba(51,201,183,.3);border-radius:8px;padding:11px 14px;}
+  .verifybox b{color:var(--accent);font-weight:600;}
+
+  footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--line-soft);color:var(--ink-faint);font-size:12.5px;}
+
+  @media (max-width:820px){
+    .grid{grid-template-columns:1fr;gap:14px;}
+    nav.labs{position:static;}
+    nav.labs .navhead{display:none;}
+    nav.labs .scroller{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;}
+    nav.labs button{width:auto;white-space:nowrap;border-left:0;border:1px solid var(--line);border-radius:999px;padding:8px 13px;}
+    nav.labs button.active{border-color:var(--accent);border-left-width:1px;}
+    nav.labs button .idx{display:none;}
+  }
+  @media (max-width:560px){
+    .wrap{padding:0 15px 48px;}
+    .sitenav-inner{padding:0 15px;gap:10px;height:52px;}
+    .sitenav .navlinks a{padding:7px 10px;font-size:13px;}
+    header.top{padding:24px 0 18px;}
+    .tagline{font-size:14px;}
+    .legend{gap:6px;}
+    .legend .chip{padding:5px 10px;font-size:11.5px;}
+    .step{padding:16px 15px 17px;}
+    .console{font-size:12px;}
+  }
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important;} }
+</style>
+</head>
+<body>
+<nav class="sitenav">
+  <div class="sitenav-inner">
+    <a class="brand" href="index.html">CCNA <b>200-301</b></a>
+    <div class="navlinks">
+      <a href="index.html">Command Console</a>
+      <a href="lab-review.html" class="active">Lab Review</a>
+      <a href="ccna-flashcards.html">Flashcards</a>
+      <a href="subnetting-practice.html">Subnetting</a>
+    </div>
+  </div>
+</nav>
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">Cisco IOS · CCNA <b>200-301</b> · lab walkthroughs</p>
+    <h1>Lab Review</h1>
+    <p class="tagline">Each scenario, start to finish — the exact commands you'd type and the reasoning behind every step. Pick a lab on the left. The colored prompt tells you which IOS mode each line runs in, matching the Command Console.</p>
+    <div class="legend" id="legend"></div>
+  </header>
+
+  <div class="grid">
+    <nav class="labs" aria-label="Labs">
+      <div class="navhead">Scenarios</div>
+      <div class="scroller" id="labnav"></div>
+    </nav>
+    <main id="main" aria-live="polite"></main>
+  </div>
+
+  <footer>
+    Walkthroughs use standard IOS / IOS-XE syntax. Addresses are examples — adapt to your topology. Always <code>copy running-config startup-config</code> when the lab is working.
+  </footer>
+</div>
+
+<script>
+/* ---- mode legend ---- */
+const MODES = [
+  {cls:"m-user",  label:"User EXEC",  legend:"&gt;"},
+  {cls:"m-priv",  label:"Priv EXEC",  legend:"#"},
+  {cls:"m-global",label:"Global Cfg", legend:"(config)#"},
+  {cls:"m-if",    label:"Interface",  legend:"(config-if)#"},
+  {cls:"m-sub",   label:"Sub-config", legend:"(config-…)#"}
+];
+
+/* ---------------- LAB DATA ----------------
+   Each console line is [prompt, command]. An empty prompt ("") marks a comment line.        */
+const LABS = [
+{ id:"bringup", title:"Switch Bring-Up & Hardening",
+  goal:"Take a factory-default switch, name it, lock down management access, and enable SSH.",
+  topo:"One access switch (ACC-SW1) reachable in-band on VLAN 1, gateway 10.0.0.1.",
+  steps:[
+    { title:"Get into config mode and name the box",
+      why:"Naming changes the prompt and is advertised by CDP/LLDP — pick names that map to the rack/site so the topology reads itself later.",
+      console:[
+        ["Switch>","enable"],
+        ["Switch#","configure terminal"],
+        ["Switch(config)#","hostname ACC-SW1"]
+      ]},
+    { title:"Secure privileged EXEC and the console",
+      why:"enable secret is hashed (always prefer it over 'enable password'). The console still needs its own login, and password-encryption hides the plaintext type-7 strings from a shoulder-surfer reading the config.",
+      console:[
+        ["ACC-SW1(config)#","enable secret Str0ngEnable!"],
+        ["ACC-SW1(config)#","service password-encryption"],
+        ["ACC-SW1(config)#","banner motd #Authorized access only#"],
+        ["ACC-SW1(config)#","line console 0"],
+        ["ACC-SW1(config-line)#","password C0nsole!"],
+        ["ACC-SW1(config-line)#","login"],
+        ["ACC-SW1(config-line)#","exit"]
+      ]},
+    { title:"Create a management IP and a login account",
+      why:"A layer-2 switch reaches the network through an SVI plus a default-gateway (it doesn't route). SSH needs a local username to authenticate against with 'login local'.",
+      console:[
+        ["ACC-SW1(config)#","username netadmin privilege 15 secret Adm!n2026"],
+        ["ACC-SW1(config)#","interface vlan 1"],
+        ["ACC-SW1(config-if)#","ip address 10.0.0.10 255.255.255.0"],
+        ["ACC-SW1(config-if)#","no shutdown"],
+        ["ACC-SW1(config-if)#","exit"],
+        ["ACC-SW1(config)#","ip default-gateway 10.0.0.1"]
+      ]},
+    { title:"Turn on SSH and shut off Telnet",
+      why:"RSA key generation requires a hostname AND a domain name first. 'transport input ssh' refuses cleartext Telnet; SSHv2 needs at least a 1024-bit modulus (2048 is the safe default).",
+      console:[
+        ["ACC-SW1(config)#","ip domain-name ets.local"],
+        ["ACC-SW1(config)#","crypto key generate rsa modulus 2048"],
+        ["ACC-SW1(config)#","ip ssh version 2"],
+        ["ACC-SW1(config)#","line vty 0 15"],
+        ["ACC-SW1(config-line)#","login local"],
+        ["ACC-SW1(config-line)#","transport input ssh"],
+        ["ACC-SW1(config-line)#","end"]
+      ]},
+    { title:"Save the configuration",
+      why:"The running-config lives in RAM and is lost on reload. Copy it to NVRAM (startup-config) once everything works.",
+      console:[
+        ["ACC-SW1#","copy running-config startup-config"]
+      ]}
+  ],
+  verify:"<b>ssh -l netadmin 10.0.0.10</b> from a host should prompt for the password; <b>show ip ssh</b> confirms version 2 is enabled." },
+
+{ id:"vlans", title:"VLANs & Access Ports",
+  goal:"Segment one switch into DATA, VOICE, and GUEST VLANs and assign access ports.",
+  topo:"ACC-SW1 with user ports Gi0/1–8 (data) and Gi0/9–12 (guest).",
+  steps:[
+    { title:"Create and name the VLANs",
+      why:"A VLAN must exist in the database before any port can join it. Names don't affect forwarding but keep a large MDU/closet deployment readable.",
+      console:[
+        ["ACC-SW1#","configure terminal"],
+        ["ACC-SW1(config)#","vlan 10"],
+        ["ACC-SW1(config-vlan)#","name DATA"],
+        ["ACC-SW1(config-vlan)#","vlan 20"],
+        ["ACC-SW1(config-vlan)#","name VOICE"],
+        ["ACC-SW1(config-vlan)#","vlan 30"],
+        ["ACC-SW1(config-vlan)#","name GUEST"],
+        ["ACC-SW1(config-vlan)#","exit"]
+      ]},
+    { title:"Assign access ports to a VLAN",
+      why:"Hard-setting 'mode access' disables DTP so the port can never negotiate a trunk. PortFast brings host ports straight to forwarding — only safe because these face end devices, never another switch.",
+      console:[
+        ["ACC-SW1(config)#","interface range Gi0/1 - 8"],
+        ["ACC-SW1(config-if-range)#","switchport mode access"],
+        ["ACC-SW1(config-if-range)#","switchport access vlan 10"],
+        ["ACC-SW1(config-if-range)#","spanning-tree portfast"],
+        ["ACC-SW1(config-if-range)#","exit"],
+        ["ACC-SW1(config)#","interface range Gi0/9 - 12"],
+        ["ACC-SW1(config-if-range)#","switchport mode access"],
+        ["ACC-SW1(config-if-range)#","switchport access vlan 30"],
+        ["ACC-SW1(config-if-range)#","end"]
+      ]}
+  ],
+  verify:"<b>show vlan brief</b> lists each VLAN and the access ports that landed in it. Trunk ports won't appear here — that's expected." },
+
+{ id:"trunk", title:"802.1Q Trunk Between Switches",
+  goal:"Carry VLANs 10/20/30 over a single link between ACC-SW1 and the distribution switch.",
+  topo:"ACC-SW1 Gi0/24 ↔ DSW1 Gi1/0/1. Native VLAN moved to 999.",
+  steps:[
+    { title:"Configure the uplink as a trunk",
+      why:"On switches that still support ISL you must set the encapsulation to dot1q first. Pruning the allowed list to only the VLANs that need to cross limits the broadcast domain and the attack surface.",
+      console:[
+        ["ACC-SW1(config)#","interface Gi0/24"],
+        ["ACC-SW1(config-if)#","switchport trunk encapsulation dot1q"],
+        ["ACC-SW1(config-if)#","switchport mode trunk"],
+        ["ACC-SW1(config-if)#","switchport trunk allowed vlan 10,20,30"],
+        ["ACC-SW1(config-if)#","switchport trunk native vlan 999"],
+        ["ACC-SW1(config-if)#","switchport nonegotiate"],
+        ["ACC-SW1(config-if)#","end"]
+      ]},
+    { title:"Mirror the config on the far end",
+      why:"Both ends must agree on the native VLAN and the encapsulation or you'll get a native-VLAN-mismatch log and VLANs that silently don't pass. 'nonegotiate' stops DTP frames now that both sides are hard-set.",
+      console:[
+        ["DSW1(config)#","interface Gi1/0/1"],
+        ["DSW1(config-if)#","switchport trunk encapsulation dot1q"],
+        ["DSW1(config-if)#","switchport mode trunk"],
+        ["DSW1(config-if)#","switchport trunk allowed vlan 10,20,30"],
+        ["DSW1(config-if)#","switchport trunk native vlan 999"],
+        ["DSW1(config-if)#","switchport nonegotiate"],
+        ["DSW1(config-if)#","end"]
+      ]}
+  ],
+  verify:"<b>show interfaces trunk</b> on either side shows the port in trunking, the native VLAN, and the allowed + active VLAN lists — the fastest way to spot a mismatch." },
+
+{ id:"roas", title:"Inter-VLAN Routing — Router-on-a-Stick",
+  goal:"Let one router route between VLANs 10/20/30 over a single trunk.",
+  topo:"R1 Gi0/0 trunks to DSW1. One subinterface per VLAN acts as that VLAN's gateway.",
+  steps:[
+    { title:"Bring up the physical interface (no IP)",
+      why:"The parent interface carries the tagged traffic but holds no address itself — the subinterfaces do the layer-3 work. It just needs to be enabled.",
+      console:[
+        ["R1(config)#","interface Gi0/0"],
+        ["R1(config-if)#","no shutdown"],
+        ["R1(config-if)#","exit"]
+      ]},
+    { title:"Create one subinterface per VLAN",
+      why:"'encapsulation dot1q <id>' tells the subinterface which VLAN tag to match. Its IP becomes the default gateway for hosts in that VLAN. Tag the native VLAN explicitly with the 'native' keyword to avoid a mismatch.",
+      console:[
+        ["R1(config)#","interface Gi0/0.10"],
+        ["R1(config-subif)#","encapsulation dot1q 10"],
+        ["R1(config-subif)#","ip address 10.10.0.1 255.255.255.0"],
+        ["R1(config-subif)#","interface Gi0/0.20"],
+        ["R1(config-subif)#","encapsulation dot1q 20"],
+        ["R1(config-subif)#","ip address 10.20.0.1 255.255.255.0"],
+        ["R1(config-subif)#","interface Gi0/0.30"],
+        ["R1(config-subif)#","encapsulation dot1q 30"],
+        ["R1(config-subif)#","ip address 10.30.0.1 255.255.255.0"],
+        ["R1(config-subif)#","end"]
+      ]}
+  ],
+  verify:"<b>show ip route</b> shows a connected (C) and local (L) entry per subinterface once the switch trunk is up. A host in VLAN 10 can now ping a host in VLAN 30." },
+
+{ id:"svi", title:"Inter-VLAN Routing — Multilayer SVIs",
+  goal:"Route between VLANs on a layer-3 switch instead of an external router.",
+  topo:"DSW1 is a multilayer switch; each VLAN gets a Switched Virtual Interface as its gateway.",
+  steps:[
+    { title:"Enable IP routing",
+      why:"A layer-3 switch ships with routing OFF — it behaves like an L2 switch until you turn it on. Without this, SVIs come up but never route between subnets.",
+      console:[
+        ["DSW1(config)#","ip routing"]
+      ]},
+    { title:"Create an SVI gateway per VLAN",
+      why:"An SVI is a virtual routed interface tied to a VLAN. Its address is the gateway hosts point at. It stays down until at least one access port (or trunk) in that VLAN is up.",
+      console:[
+        ["DSW1(config)#","interface vlan 10"],
+        ["DSW1(config-if)#","ip address 10.10.0.1 255.255.255.0"],
+        ["DSW1(config-if)#","no shutdown"],
+        ["DSW1(config-if)#","interface vlan 30"],
+        ["DSW1(config-if)#","ip address 10.30.0.1 255.255.255.0"],
+        ["DSW1(config-if)#","no shutdown"],
+        ["DSW1(config-if)#","end"]
+      ]}
+  ],
+  verify:"<b>show ip route</b> lists each VLAN subnet as connected. This is the same model as the SVIs on an Arista/Catalyst core — define the VLAN interface, give it the gateway IP, and it routes." },
+
+{ id:"etherchannel", title:"EtherChannel (LACP)",
+  goal:"Bundle two links into one logical trunk for bandwidth and redundancy.",
+  topo:"ACC-SW1 Gi0/1–2 ↔ DSW1 Gi1/0/1–2, bundled as Port-channel 1.",
+  steps:[
+    { title:"Add the member ports to a channel-group",
+      why:"LACP modes are active/passive — you need active+active or active+passive to form. Members must match in speed, duplex, and VLAN settings or the bundle suspends. Configure them as a range so they stay identical.",
+      console:[
+        ["ACC-SW1(config)#","interface range Gi0/1 - 2"],
+        ["ACC-SW1(config-if-range)#","channel-group 1 mode active"],
+        ["ACC-SW1(config-if-range)#","exit"]
+      ]},
+    { title:"Configure the logical Port-channel interface",
+      why:"Apply trunk/access settings to the Po interface, not the physical ports — the members inherit them. Editing a member directly is how you accidentally break the bundle.",
+      console:[
+        ["ACC-SW1(config)#","interface port-channel 1"],
+        ["ACC-SW1(config-if)#","switchport trunk encapsulation dot1q"],
+        ["ACC-SW1(config-if)#","switchport mode trunk"],
+        ["ACC-SW1(config-if)#","switchport trunk allowed vlan 10,20,30"],
+        ["ACC-SW1(config-if)#","end"],
+        ["","! repeat the same channel-group + Po config on DSW1"]
+      ]}
+  ],
+  verify:"<b>show etherchannel summary</b> — every member should show the (P) flag (bundled/in use). (s)=suspended usually means a config mismatch; (D)=down." },
+
+{ id:"stp", title:"Spanning Tree — Root & Edge Hardening",
+  goal:"Place the root bridge deterministically and protect access ports from rogue switches.",
+  topo:"DSW1 should be root for VLANs 1–50; access ports face hosts only.",
+  steps:[
+    { title:"Standardize the STP mode",
+      why:"Rapid PVST+ converges in seconds versus ~50s for classic 802.1D, and runs one instance per VLAN. Set the same mode on every switch so they interoperate predictably.",
+      console:[
+        ["DSW1(config)#","spanning-tree mode rapid-pvst"]
+      ]},
+    { title:"Force the root bridge",
+      why:"Left alone, the lowest MAC wins the root election — often an old access switch in a closet. 'root primary' lowers this switch's priority so your distribution switch wins on purpose.",
+      console:[
+        ["DSW1(config)#","spanning-tree vlan 1-50 root primary"]
+      ]},
+    { title:"Harden the edge ports",
+      why:"PortFast skips listen/learn for instant host connectivity. BPDU Guard err-disables the port the moment it sees a BPDU — so if someone plugs a switch into a host port, it shuts down instead of triggering a loop or hijacking the root role.",
+      console:[
+        ["ACC-SW1(config)#","interface range Gi0/1 - 8"],
+        ["ACC-SW1(config-if-range)#","spanning-tree portfast"],
+        ["ACC-SW1(config-if-range)#","spanning-tree bpduguard enable"],
+        ["ACC-SW1(config-if-range)#","end"]
+      ]}
+  ],
+  verify:"<b>show spanning-tree vlan 10</b> — the root switch shows 'This bridge is the root'. On others, each port shows a role (Root/Desg/Altn) and state (FWD/BLK)." },
+
+{ id:"static", title:"Static & Default Routing",
+  goal:"Reach a remote LAN via a next-hop, point a default route at the ISP, and add a floating backup.",
+  topo:"R1 ↔ R2 over 10.0.0.0/30; remote LAN 10.50.0.0/24 behind R2; ISP at 203.0.113.1.",
+  steps:[
+    { title:"Address the link and bring it up",
+      why:"Router interfaces are administratively shut by default — the #1 'why is it down' gotcha. Each side of the /30 gets one usable address.",
+      console:[
+        ["R1(config)#","interface Gi0/1"],
+        ["R1(config-if)#","ip address 10.0.0.1 255.255.255.252"],
+        ["R1(config-if)#","no shutdown"],
+        ["R1(config-if)#","exit"]
+      ]},
+    { title:"Add the static route to the remote LAN",
+      why:"You tell R1 that 10.50.0.0/24 is reachable via R2's interface address (the next hop). Without this, R1 has no idea the remote subnet exists.",
+      console:[
+        ["R1(config)#","ip route 10.50.0.0 255.255.255.0 10.0.0.2"]
+      ]},
+    { title:"Add a default route and a floating backup",
+      why:"0.0.0.0/0 catches everything not in the table — the gateway of last resort toward the ISP. The second route to the same destination has a higher AD (10), so it only installs if the primary path disappears.",
+      console:[
+        ["R1(config)#","ip route 0.0.0.0 0.0.0.0 203.0.113.1"],
+        ["R1(config)#","ip route 0.0.0.0 0.0.0.0 198.51.100.1 10"],
+        ["R1(config)#","end"]
+      ]}
+  ],
+  verify:"<b>show ip route</b> — S marks static routes, S* marks the default. The floating backup won't show until the primary next-hop goes away." },
+
+{ id:"ospf", title:"Single-Area OSPF",
+  goal:"Form OSPF adjacencies in area 0 and advertise the LANs, including a default route.",
+  topo:"R1 ↔ R2 in area 0. R1 has the internet default to inject.",
+  steps:[
+    { title:"Start the process and pin the Router ID",
+      why:"The process ID is locally significant — it does NOT need to match the neighbor. Setting the router-id by hand keeps it stable instead of letting OSPF pick the highest loopback/interface IP after a reboot.",
+      console:[
+        ["R1(config)#","router ospf 1"],
+        ["R1(config-router)#","router-id 1.1.1.1"]
+      ]},
+    { title:"Advertise interfaces with wildcard masks",
+      why:"OSPF network statements use a WILDCARD (inverse) mask. Any interface whose IP falls in the range joins area 0 and starts sending hellos. Match the link subnet and each LAN.",
+      console:[
+        ["R1(config-router)#","network 10.0.0.0 0.0.0.3 area 0"],
+        ["R1(config-router)#","network 10.10.0.0 0.0.0.255 area 0"]
+      ]},
+    { title:"Silence host-facing interfaces and inject the default",
+      why:"passive-interface still advertises the subnet but stops hellos toward hosts — no point inviting an adjacency on a user VLAN. 'default-information originate' pushes R1's 0.0.0.0/0 to neighbors so the whole area learns the way out.",
+      console:[
+        ["R1(config-router)#","passive-interface GigabitEthernet0/0.10"],
+        ["R1(config-router)#","default-information originate"],
+        ["R1(config-router)#","end"]
+      ]}
+  ],
+  verify:"<b>show ip ospf neighbor</b> — a healthy neighbor reaches FULL (or 2WAY for non-DR on multi-access). Stuck in INIT/EXSTART points to a hello/dead timer, MTU, or subnet-mask mismatch." },
+
+{ id:"dhcp", title:"DHCP Server & Relay",
+  goal:"Hand out addresses for VLAN 30 from the router and relay requests from a different subnet.",
+  topo:"R1 is the DHCP server for 10.30.0.0/24; clients in 10.40.0.0/24 sit behind another interface.",
+  steps:[
+    { title:"Reserve the static addresses first",
+      why:"Exclude the gateway and any static/server addresses BEFORE creating the pool, or the server may lease them out and cause duplicate-IP conflicts.",
+      console:[
+        ["R1(config)#","ip dhcp excluded-address 10.30.0.1 10.30.0.10"]
+      ]},
+    { title:"Define the scope",
+      why:"'network' is the subnet to lease from; 'default-router' is the gateway clients receive; 'dns-server' is the resolver. These are the three options a client needs to actually use the network.",
+      console:[
+        ["R1(config)#","ip dhcp pool VLAN30"],
+        ["R1(dhcp-config)#","network 10.30.0.0 255.255.255.0"],
+        ["R1(dhcp-config)#","default-router 10.30.0.1"],
+        ["R1(dhcp-config)#","dns-server 1.1.1.1"],
+        ["R1(dhcp-config)#","exit"]
+      ]},
+    { title:"Relay broadcasts from a remote subnet",
+      why:"DHCP DISCOVER is a broadcast and won't cross a router. 'ip helper-address' on the client-side interface converts it to a unicast aimed at the server so clients on 10.40.0.0/24 can be served too.",
+      console:[
+        ["R1(config)#","interface vlan 40"],
+        ["R1(config-if)#","ip helper-address 10.30.0.1"],
+        ["R1(config-if)#","end"]
+      ]}
+  ],
+  verify:"<b>show ip dhcp binding</b> lists the IP↔MAC leases that have actually been handed out; <b>show ip dhcp pool</b> shows scope utilization." },
+
+{ id:"nat", title:"NAT / PAT (Overload)",
+  goal:"Translate many private hosts onto one public address using the outside interface.",
+  topo:"Inside 192.168.0.0/16 on Gi0/0; outside (public) on Gi0/1.",
+  steps:[
+    { title:"Mark the inside and outside interfaces",
+      why:"NAT only acts on traffic crossing FROM an 'inside' interface TO an 'outside' one. Forgetting one of these tags is the top reason NAT appears to 'do nothing'.",
+      console:[
+        ["R1(config)#","interface Gi0/0"],
+        ["R1(config-if)#","ip nat inside"],
+        ["R1(config-if)#","interface Gi0/1"],
+        ["R1(config-if)#","ip nat outside"],
+        ["R1(config-if)#","exit"]
+      ]},
+    { title:"Match the hosts allowed to translate",
+      why:"A standard ACL names the private source range NAT is permitted to translate. Anything not permitted here keeps its original address.",
+      console:[
+        ["R1(config)#","access-list 1 permit 192.168.0.0 0.0.255.255"]
+      ]},
+    { title:"Enable PAT with overload",
+      why:"'overload' multiplexes every matched host onto the outside interface's single IP, tracked by source port. That one keyword is the difference between 1:1 NAT and many-to-one PAT.",
+      console:[
+        ["R1(config)#","ip nat inside source list 1 interface Gi0/1 overload"],
+        ["R1(config)#","end"]
+      ]}
+  ],
+  verify:"<b>show ip nat translations</b> shows entries building as hosts send traffic; <b>show ip nat statistics</b> shows hit counts. 'clear ip nat translation *' wipes the table." },
+
+{ id:"acl", title:"ACLs — Filtering Traffic",
+  goal:"Block the guest VLAN from internal subnets while still allowing internet access.",
+  topo:"Guest 10.99.0.0/24 must not reach 10.0.0.0/8, but everything else is permitted.",
+  steps:[
+    { title:"Build a named extended ACL",
+      why:"Extended ACLs match protocol, source, destination, and port. Named lists read better and let you edit individual lines by sequence number. Order matters — the first match wins, and there's an implicit deny-all at the end, so you must explicitly permit the rest.",
+      console:[
+        ["R1(config)#","ip access-list extended GUEST-FILTER"],
+        ["R1(config-ext-nacl)#","deny ip 10.99.0.0 0.0.0.255 10.0.0.0 0.255.255.255"],
+        ["R1(config-ext-nacl)#","permit ip any any"],
+        ["R1(config-ext-nacl)#","exit"]
+      ]},
+    { title:"Apply it close to the source",
+      why:"Extended ACLs go as near the source as possible so denied traffic is dropped before it crosses the network. 'in' filters traffic entering the interface — here, the guest VLAN's gateway.",
+      console:[
+        ["R1(config)#","interface vlan 99"],
+        ["R1(config-if)#","ip access-group GUEST-FILTER in"],
+        ["R1(config-if)#","end"]
+      ]}
+  ],
+  verify:"<b>show access-lists</b> shows per-line hit counters — if the deny line never increments, your traffic isn't matching the source/destination you think it is." },
+
+{ id:"portsec", title:"Port Security",
+  goal:"Lock an access port to a limited set of MAC addresses and react to violations.",
+  topo:"A user port that should see at most a phone + a PC (2 MACs).",
+  steps:[
+    { title:"Enable port security on an access port",
+      why:"Port security only works on a port that's hard-set to access mode. 'maximum 2' allows a phone with a PC daisy-chained behind it. 'sticky' learns the connected MACs and writes them into the running-config as known-good.",
+      console:[
+        ["ACC-SW1(config)#","interface Gi0/5"],
+        ["ACC-SW1(config-if)#","switchport mode access"],
+        ["ACC-SW1(config-if)#","switchport port-security"],
+        ["ACC-SW1(config-if)#","switchport port-security maximum 2"],
+        ["ACC-SW1(config-if)#","switchport port-security mac-address sticky"]
+      ]},
+    { title:"Choose the violation action",
+      why:"shutdown (default) err-disables the port and needs manual recovery; restrict drops the offending traffic but keeps the port up, logs, and increments a counter; protect drops silently. 'restrict' is the usual balance for a help-desk-friendly edge.",
+      console:[
+        ["ACC-SW1(config-if)#","switchport port-security violation restrict"],
+        ["ACC-SW1(config-if)#","end"]
+      ]}
+  ],
+  verify:"<b>show port-security interface Gi0/5</b> shows the max, current count, the sticky MACs, the last violating address, and whether the port is secured or err-disabled." },
+
+{ id:"ipv6", title:"IPv6 Addressing & Static Route",
+  goal:"Enable IPv6 routing, address an interface, and add a static + default route.",
+  topo:"R1 LAN on 2001:db8:30::/64; upstream via 2001:db8:0:1::2.",
+  steps:[
+    { title:"Turn on IPv6 routing",
+      why:"IPv6 forwarding is off by default. Enabling it also makes the router send Router Advertisements so hosts can build addresses via SLAAC.",
+      console:[
+        ["R1(config)#","ipv6 unicast-routing"]
+      ]},
+    { title:"Address the interface",
+      why:"You assign the full global address with its prefix length; the router automatically derives a link-local (fe80::) for on-link/NDP traffic. No 'no shutdown' needed beyond the usual interface enable.",
+      console:[
+        ["R1(config)#","interface Gi0/0"],
+        ["R1(config-if)#","ipv6 address 2001:db8:30::1/64"],
+        ["R1(config-if)#","no shutdown"],
+        ["R1(config-if)#","exit"]
+      ]},
+    { title:"Add static and default routes",
+      why:"Same logic as IPv4 — destination prefix then next-hop. The IPv6 default route is ::/0. These only work because unicast-routing is already enabled.",
+      console:[
+        ["R1(config)#","ipv6 route 2001:db8:50::/64 2001:db8:0:1::2"],
+        ["R1(config)#","ipv6 route ::/0 2001:db8:0:1::2"],
+        ["R1(config)#","end"]
+      ]}
+  ],
+  verify:"<b>show ipv6 interface brief</b> shows the link-local and global addresses; <b>show ipv6 route</b> uses the same codes as IPv4 (C/L/S, O for OSPFv3)." },
+
+{ id:"hsrp", title:"First-Hop Redundancy (HSRP)",
+  goal:"Give hosts a single virtual gateway shared by two distribution switches.",
+  topo:"DSW1 (primary) and DSW2 (backup) both have an SVI in VLAN 10; clients use the virtual IP .1.",
+  steps:[
+    { title:"Give each switch a real SVI address",
+      why:"HSRP sits on top of two real interfaces. Each switch needs its own unique IP in the subnet; the virtual IP they share is a third address that the hosts actually point at.",
+      console:[
+        ["DSW1(config)#","interface vlan 10"],
+        ["DSW1(config-if)#","ip address 10.10.0.2 255.255.255.0"],
+        ["","! DSW2 uses 10.10.0.3 on its own interface vlan 10"]
+      ]},
+    { title:"Configure the HSRP group and win the active role",
+      why:"The virtual IP is the gateway clients configure. Higher priority wins the active role; 'preempt' lets the primary take the role back after a reboot instead of staying standby. Without preempt, whoever booted first stays active.",
+      console:[
+        ["DSW1(config-if)#","standby version 2"],
+        ["DSW1(config-if)#","standby 10 ip 10.10.0.1"],
+        ["DSW1(config-if)#","standby 10 priority 110"],
+        ["DSW1(config-if)#","standby 10 preempt"],
+        ["DSW1(config-if)#","end"]
+      ]},
+    { title:"Configure the backup with default priority",
+      why:"DSW2 joins the same group and virtual IP but keeps the default priority of 100, so it loses the election and becomes standby — ready to take over instantly if DSW1 fails.",
+      console:[
+        ["DSW2(config)#","interface vlan 10"],
+        ["DSW2(config-if)#","standby version 2"],
+        ["DSW2(config-if)#","standby 10 ip 10.10.0.1"],
+        ["DSW2(config-if)#","standby 10 preempt"],
+        ["DSW2(config-if)#","end"]
+      ]}
+  ],
+  verify:"<b>show standby brief</b> — DSW1 should read Active and DSW2 Standby, both with the same virtual IP. The active router answers for the virtual MAC 0000.0C9F.Fxxx (HSRPv2)." },
+
+{ id:"troubleshoot", title:"Connectivity Troubleshooting",
+  goal:"Work a 'can't reach the internet' report methodically from the bottom of the stack up.",
+  topo:"A host in VLAN 30 reports no connectivity. Use show commands to isolate the layer.",
+  steps:[
+    { title:"Define the problem and test the path",
+      why:"Reproduce it first. Ping the gateway, then something beyond it, then a public IP, then a name. Where the ping first fails tells you which layer to dig into — and ping by IP vs name separates routing problems from DNS.",
+      console:[
+        ["R1#","ping 10.30.0.1"],
+        ["R1#","ping 8.8.8.8"],
+        ["R1#","traceroute 8.8.8.8"],
+        ["","! row of * * * = the hop that stops responding or is filtering"]
+      ]},
+    { title:"Check layer 1 / 2 — is the port even up?",
+      why:"'up/up' means line (L1) and protocol (L2) are both good. 'up/down' is usually an encapsulation or keepalive issue; 'down/down' is cabling or a shut interface; 'err-disabled' points at port security or BPDU guard.",
+      console:[
+        ["R1#","show ip interface brief"],
+        ["ACC-SW1#","show interfaces status"]
+      ]},
+    { title:"Check VLAN and trunk plumbing",
+      why:"A host can be cabled fine but stranded in the wrong VLAN, or its VLAN may not be crossing the trunk. Confirm the access port's VLAN and that the VLAN is in the trunk's allowed/active list.",
+      console:[
+        ["ACC-SW1#","show vlan brief"],
+        ["ACC-SW1#","show interfaces trunk"]
+      ]},
+    { title:"Check layer 3 — routing and gateways",
+      why:"If L1/L2 are clean, look for a missing route or default. No gateway of last resort means traffic to the internet has nowhere to go. Confirm the host's subnet and the default route both appear.",
+      console:[
+        ["R1#","show ip route"],
+        ["R1#","show ip protocols"]
+      ]},
+    { title:"Check the services in the path",
+      why:"Routing can be perfect while NAT, an ACL, or DHCP quietly breaks things. No NAT translations, a deny-line counter climbing, or an empty DHCP binding table each point straight at the culprit.",
+      console:[
+        ["R1#","show ip nat translations"],
+        ["R1#","show access-lists"],
+        ["R1#","show ip dhcp binding"]
+      ]}
+  ],
+  verify:"Work one layer at a time and re-test after each fix. The moment a layer checks out clean, move up — don't fix two things at once or you won't know which mattered." }
+];
+
+/* ---------------- RENDER ---------------- */
+const labnavEl = document.getElementById('labnav');
+const mainEl = document.getElementById('main');
+const legendEl = document.getElementById('legend');
+let active = LABS[0].id;
+
+legendEl.innerHTML = MODES.map(m =>
+  `<span class="chip"><span class="dot" style="background:var(--${m.cls})"></span>${m.label} <code>${m.legend}</code></span>`
+).join('');
+
+labnavEl.innerHTML = LABS.map((l,i)=>
+  `<button data-lab="${l.id}" class="${l.id===active?'active':''}">
+     <span class="idx">${String(i+1).padStart(2,'0')}</span>${esc(l.title)}
+   </button>`).join('');
+labnavEl.querySelectorAll('button').forEach(b=>{
+  b.addEventListener('click',()=>{ active=b.dataset.lab; render(); });
+});
+
+function promptClass(p){
+  if(/\(config-if(-range)?\)#\s*$/.test(p)) return 'm-if';
+  if(/\(config\)#\s*$/.test(p)) return 'm-global';
+  if(/\([^)]*\)#\s*$/.test(p)) return 'm-sub';   // router / line / vlan / subif / dhcp / nacl
+  if(/#\s*$/.test(p)) return 'm-priv';
+  if(/>\s*$/.test(p)) return 'm-user';
+  return 'm-priv';
+}
+
+function renderConsole(lines){
+  const body = lines.map(([p,c])=>{
+    if(p==='' || String(c).trim().startsWith('!'))
+      return `<span class="comment">${esc(c)}</span>`;
+    return `<span class="prompt ${promptClass(p)}">${esc(p)}</span> <span class="typed">${esc(c)}</span>`;
+  }).join('\n');
+  return `<div class="console">${body}</div>`;
+}
+
+function render(){
+  const l = LABS.find(x=>x.id===active);
+  labnavEl.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.lab===active));
+  mainEl.innerHTML =
+    `<div class="lab-intro">
+       <p class="kicker">Lab walkthrough</p>
+       <h2>${esc(l.title)}</h2>
+       <div class="lab-meta">
+         <div class="row"><span class="label">Goal</span><span class="val">${esc(l.goal)}</span></div>
+         <div class="row"><span class="label">Topology</span><span class="val">${esc(l.topo)}</span></div>
+       </div>
+     </div>
+     <div class="steps">` +
+    l.steps.map(s=>
+      `<div class="step">
+         <div class="shead"><span class="num"></span><span class="stitle">${esc(s.title)}</span></div>
+         <div class="think"><span class="tk">Thinking</span><span>${s.why}</span></div>
+         ${renderConsole(s.console)}
+       </div>`).join('') +
+    `</div>` +
+    (l.verify?`<div class="verifybox"><b>Verify · </b>${l.verify}</div>`:'');
+  window.scrollTo({top:0,behavior:'auto'});
+}
+
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+render();
+</script>
+</body>
+</html>
