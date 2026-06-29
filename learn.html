@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCNA Learn — Topic Study Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1218;
+    --bg-2:#121a22;
+    --surface:#161f29;
+    --surface-2:#1b2734;
+    --line:#243140;
+    --line-soft:#1d2733;
+    --ink:#e8eef4;
+    --ink-mute:#8a99a8;
+    --ink-faint:#5c6b7a;
+    --accent:#6691f0;            /* Learn's own identity = study blue */
+
+    /* mode palette — mirrors the Command Console color key */
+    --m-user:#7e8e9e;
+    --m-priv:#38bdf8;
+    --m-global:#f2b23e;
+    --m-if:#54e08a;
+    --m-sub:#a98bf5;
+
+    --radius:12px;
+    --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:'IBM Plex Sans',system-ui,sans-serif;
+    --display:'Space Grotesk',var(--sans);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #182238 0%, rgba(24,34,56,0) 55%),
+      var(--bg);
+    color:var(--ink);font-family:var(--sans);line-height:1.5;
+    -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;min-height:100vh;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px 64px;}
+
+  /* ---------- site nav ---------- */
+  .sitenav{position:sticky;top:0;z-index:50;border-bottom:1px solid var(--line-soft);
+    background:rgba(13,18,24,.78);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);}
+  .sitenav-inner{max-width:1180px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:18px;height:54px;}
+  .sitenav .brand{font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink-mute);text-decoration:none;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;}
+  .sitenav .brand b{color:var(--accent);font-weight:600;}
+  .sitenav .navlinks{display:flex;gap:4px;margin-left:auto;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .sitenav .navlinks a{font-family:var(--sans);font-size:13.5px;font-weight:500;color:var(--ink-mute);
+    text-decoration:none;padding:7px 13px;border-radius:8px;white-space:nowrap;transition:color .12s,background .12s;}
+  .sitenav .navlinks a:hover{color:var(--ink);background:var(--surface);}
+  .sitenav .navlinks a.active{color:var(--accent);background:var(--surface-2);}
+
+  /* ---------- header ---------- */
+  header.top{padding:34px 0 22px;border-bottom:1px solid var(--line-soft);}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 10px;}
+  .eyebrow b{color:var(--accent);font-weight:500;}
+  h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,4.4vw,44px);letter-spacing:-.02em;margin:0;line-height:1.04;}
+  .tagline{color:var(--ink-mute);margin:12px 0 0;max-width:64ch;font-size:15px;}
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;}
+  .legend .chip{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);
+    border-radius:999px;padding:6px 12px 6px 10px;font-size:12.5px;color:var(--ink-mute);}
+  .legend .dot{width:9px;height:9px;border-radius:50%;flex:none;}
+  .legend code{font-family:var(--mono);color:var(--ink);font-size:11.5px;}
+
+  /* ---------- layout ---------- */
+  .grid{display:grid;grid-template-columns:266px 1fr;gap:30px;margin-top:26px;align-items:start;}
+
+  nav.toc{position:sticky;top:72px;max-height:calc(100vh - 90px);overflow-y:auto;padding-right:4px;}
+  nav.toc .domain{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--accent);padding:14px 12px 7px;}
+  nav.toc .domain:first-child{padding-top:0;}
+  nav.toc button{
+    display:block;width:100%;text-align:left;background:transparent;border:0;border-left:2px solid transparent;
+    color:var(--ink-mute);font-family:var(--sans);font-size:13.5px;font-weight:500;
+    padding:7px 12px;cursor:pointer;border-radius:0 7px 7px 0;transition:background .12s,color .12s,border-color .12s;
+  }
+  nav.toc button:hover{background:var(--surface);color:var(--ink);}
+  nav.toc button.active{background:var(--surface-2);color:var(--ink);border-left-color:var(--accent);}
+
+  /* ---------- article ---------- */
+  main{min-width:0;}
+  .topic-head{margin:2px 0 6px;}
+  .topic-head .kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin:0 0 9px;}
+  .topic-head h2{font-family:var(--display);font-weight:600;font-size:27px;margin:0;letter-spacing:-.01em;}
+  .topic-head .sum{color:var(--ink-mute);margin:11px 0 0;font-size:15px;line-height:1.55;max-width:68ch;}
+
+  .th{font-family:var(--display);font-weight:600;font-size:17px;color:var(--ink);margin:30px 0 12px;letter-spacing:-.01em;
+    display:flex;align-items:center;gap:10px;}
+  .th::before{content:"";width:7px;height:18px;border-radius:3px;background:var(--accent);flex:none;}
+  .tp{color:var(--ink-mute);font-size:14.5px;line-height:1.65;margin:0 0 12px;max-width:72ch;}
+  .tp b{color:var(--ink);font-weight:600;}
+  .tp code,.facts code,.tnote code,.ttable code{font-family:var(--mono);font-size:12.5px;color:#cfe0ff;
+    background:#0c1422;border:1px solid var(--line-soft);border-radius:4px;padding:1px 5px;}
+
+  .facts{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px;}
+  .facts li{position:relative;padding:10px 14px 10px 34px;background:var(--surface);border:1px solid var(--line);
+    border-radius:9px;font-size:14px;line-height:1.55;color:var(--ink-mute);}
+  .facts li::before{content:"▸";position:absolute;left:13px;top:10px;color:var(--accent);font-family:var(--mono);font-size:12px;}
+  .facts li b{color:var(--ink);font-weight:600;}
+
+  .tnote{margin:4px 0 14px;font-size:13.5px;line-height:1.6;color:#d4def0;background:rgba(102,145,240,.08);
+    border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:11px 14px;}
+  .tnote b{color:var(--accent);font-weight:600;}
+
+  .ttable-wrap{overflow-x:auto;margin:4px 0 16px;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:10px;}
+  table.ttable{border-collapse:collapse;width:100%;font-size:13.5px;min-width:380px;}
+  table.ttable th{font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);
+    text-align:left;padding:10px 14px;background:var(--bg-2);border-bottom:1px solid var(--line);white-space:nowrap;}
+  table.ttable td{padding:9px 14px;border-bottom:1px solid var(--line-soft);color:var(--ink-mute);vertical-align:top;}
+  table.ttable tr:last-child td{border-bottom:0;}
+  table.ttable td:first-child{color:var(--ink);font-weight:500;white-space:nowrap;}
+
+  .cmd-ex{margin:4px 0 16px;}
+  .cmd-label{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 7px;}
+  .console{font-family:var(--mono);font-size:13px;background:#0a0f15;border:1px solid var(--line-soft);
+    border-radius:8px;padding:13px 15px;white-space:pre-wrap;word-break:break-word;line-height:1.7;overflow-x:auto;}
+  .console .prompt{font-weight:500;}
+  .console .prompt.m-user{color:var(--m-user);}
+  .console .prompt.m-priv{color:var(--m-priv);}
+  .console .prompt.m-global{color:var(--m-global);}
+  .console .prompt.m-if{color:var(--m-if);}
+  .console .prompt.m-sub{color:var(--m-sub);}
+  .console .typed{color:var(--ink);}
+  .console .comment{color:var(--ink-faint);font-style:italic;}
+
+  .pager{display:flex;justify-content:space-between;gap:12px;margin-top:34px;padding-top:20px;border-top:1px solid var(--line-soft);}
+  .pager button{font-family:var(--sans);font-size:13.5px;font-weight:500;color:var(--ink-mute);background:var(--surface);
+    border:1px solid var(--line);border-radius:9px;padding:11px 15px;cursor:pointer;max-width:48%;text-align:left;
+    transition:color .12s,border-color .12s,background .12s;}
+  .pager button:hover:not(:disabled){color:var(--ink);border-color:var(--accent);background:var(--surface-2);}
+  .pager button:disabled{opacity:.3;cursor:default;}
+  .pager button .pl{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:3px;}
+  .pager button.next{text-align:right;}
+
+  footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--line-soft);color:var(--ink-faint);font-size:12.5px;}
+
+  @media (max-width:860px){
+    .grid{grid-template-columns:1fr;gap:14px;}
+    nav.toc{position:static;max-height:none;overflow:visible;}
+    nav.toc .scroller{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;}
+    nav.toc .domain{display:none;}
+    nav.toc button{width:auto;white-space:nowrap;border-left:0;border:1px solid var(--line);border-radius:999px;padding:8px 13px;}
+    nav.toc button.active{border-color:var(--accent);border-left-width:1px;}
+  }
+  @media (max-width:560px){
+    .wrap{padding:0 15px 48px;}
+    .sitenav-inner{padding:0 15px;gap:10px;height:52px;}
+    .sitenav .navlinks a{padding:7px 10px;font-size:13px;}
+    header.top{padding:24px 0 18px;}
+    .tagline{font-size:14px;}
+    .legend .chip{padding:5px 10px;font-size:11.5px;}
+    .topic-head h2{font-size:23px;}
+    .console{font-size:12px;}
+  }
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important;} }
+</style>
+</head>
+<body>
+<nav class="sitenav">
+  <div class="sitenav-inner">
+    <a class="brand" href="index.html">CCNA <b>200-301</b></a>
+    <div class="navlinks">
+      <a href="learn.html" class="active">Learn</a>
+      <a href="index.html">Command Console</a>
+      <a href="lab-review.html">Lab Review</a>
+      <a href="ccna-flashcards.html">Flashcards</a>
+      <a href="subnetting-practice.html">IPv4 Subnetting</a>
+      <a href="ipv6-subnetting.html">IPv6 Subnetting</a>
+    </div>
+  </div>
+</nav>
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">Cisco · CCNA <b>200-301</b> · study guide</p>
+    <h1>Learn</h1>
+    <p class="tagline">A summary of everything the exam expects you to know, topic by topic — the core concepts, the must-memorize numbers, and the commands that make each one real. Pick a topic on the left. Command prompts are colored by the IOS mode they run in.</p>
+    <div class="legend" id="legend"></div>
+  </header>
+
+  <div class="grid">
+    <nav class="toc" aria-label="Topics">
+      <div class="scroller" id="toc"></div>
+    </nav>
+    <main id="main" aria-live="polite"></main>
+  </div>
+
+  <footer>
+    A study companion — pair it with the Command Console (reference), Lab Review (walkthroughs), and the practice pages. Values are standard CCNA 200-301 references (IEEE / IETF / Cisco defaults).
+  </footer>
+</div>
+
+<script>
+/* mode legend (matches Command Console) */
+const MODES = [
+  {cls:"m-user",  label:"User EXEC",  legend:"&gt;"},
+  {cls:"m-priv",  label:"Priv EXEC",  legend:"#"},
+  {cls:"m-global",label:"Global Cfg", legend:"(config)#"},
+  {cls:"m-if",    label:"Interface",  legend:"(config-if)#"},
+  {cls:"m-sub",   label:"Sub-config", legend:"(config-…)#"}
+];
+
+/* ============================ CONTENT ============================
+   Block types:  p (paragraph) · h (subheading) · facts (key bullets) ·
+                 note (callout) · table {head,rows} · cmd {label,lines:[[prompt,cmd]]}
+   Empty prompt "" in a cmd line = a comment.                                       */
+const TOPICS = [
+/* ===================== DOMAIN 1 — NETWORK FUNDAMENTALS ===================== */
+{ id:"components", domain:"1 · Network Fundamentals", title:"Network Components",
+  summary:"What each box in the topology does and where it lives in the network.",
+  blocks:[
+    {t:"facts", items:[
+      "<b>Router</b> — Layer 3. Forwards packets between IP networks using the routing table; one broadcast domain per interface.",
+      "<b>Switch</b> — Layer 2. Forwards frames by MAC address; every port is its own collision domain, all ports share one broadcast domain (per VLAN).",
+      "<b>Firewall</b> — Stateful traffic policy between security zones (inside/outside/DMZ).",
+      "<b>Access Point (AP)</b> — Bridges wireless clients onto the wired LAN; lightweight APs are managed by a WLC.",
+      "<b>WLC</b> — Wireless LAN Controller; central config, RF management, and roaming for lightweight APs.",
+      "<b>Endpoints / servers</b> — the hosts that actually send and receive the traffic.",
+    ]},
+    {t:"h", text:"Collision vs broadcast domains"},
+    {t:"tp", html:"A <b>collision domain</b> is a segment where frames can collide — each switch port is its own, so switches eliminate collisions (full-duplex). A <b>broadcast domain</b> is the set of devices that receive each other's broadcasts — a router (or a VLAN boundary) is what splits one broadcast domain from the next."},
+    {t:"note", html:"<b>Rule of thumb:</b> switches break up collision domains; routers (and VLANs) break up broadcast domains."},
+  ]},
+
+{ id:"models", domain:"1 · Network Fundamentals", title:"OSI & TCP/IP Models",
+  summary:"The layered model, what lives at each layer, and how data is encapsulated.",
+  blocks:[
+    {t:"h", text:"The OSI layers (7 → 1)"},
+    {t:"table", head:["#","Layer","PDU","Examples"], rows:[
+      ["7","Application","Data","HTTP, DNS, SSH, SMTP"],
+      ["6","Presentation","Data","TLS, ASCII, JPEG"],
+      ["5","Session","Data","sessions / RPC"],
+      ["4","Transport","Segment","TCP, UDP, ports"],
+      ["3","Network","Packet","IP, ICMP, OSPF, routers"],
+      ["2","Data Link","Frame","Ethernet, MAC, switches"],
+      ["1","Physical","Bits","cables, signals, NICs"],
+    ]},
+    {t:"tp", html:"Mnemonic top-down: <b>All People Seem To Need Data Processing</b>. The TCP/IP model collapses these into Application / Transport / Internet / Network-Access."},
+    {t:"h", text:"Encapsulation"},
+    {t:"tp", html:"As data moves down the stack each layer adds a header: data → <b>segment</b> (TCP/UDP + ports) → <b>packet</b> (IP src/dst) → <b>frame</b> (MAC src/dst + FCS) → <b>bits</b> on the wire. De-encapsulation reverses this on the receiver."},
+    {t:"h", text:"TCP vs UDP"},
+    {t:"table", head:["","TCP","UDP"], rows:[
+      ["Connection","Connection-oriented (3-way handshake)","Connectionless"],
+      ["Reliability","Acknowledged, retransmits, ordered","Best-effort, no ACKs"],
+      ["Overhead","Higher (20-byte header)","Lower (8-byte header)"],
+      ["Use cases","HTTP, SSH, file transfer","DNS, DHCP, VoIP, streaming"],
+    ]},
+    {t:"note", html:"TCP 3-way handshake: <b>SYN → SYN-ACK → ACK</b>. This is a favorite exam question."},
+  ]},
+
+{ id:"cabling", domain:"1 · Network Fundamentals", title:"Cabling & Interfaces",
+  summary:"Copper vs fiber, which cable goes where, and how to read interface state.",
+  blocks:[
+    {t:"facts", items:[
+      "<b>Straight-through</b> — connects <b>unlike</b> devices (PC↔switch, switch↔router).",
+      "<b>Crossover</b> — connects <b>like</b> devices (switch↔switch, PC↔PC, PC↔router). Auto-MDIX makes this moot on modern gear.",
+      "<b>Rollover (console)</b> — light-blue cable to the console port for out-of-band CLI.",
+      "<b>UTP copper</b> max run = <b>100 m</b>; beyond that use fiber.",
+      "<b>Single-mode fiber</b> = long-haul (laser); <b>multimode</b> = shorter runs (LED/VCSEL), cheaper.",
+    ]},
+    {t:"h", text:"Reading interface status"},
+    {t:"tp", html:"<code>show ip interface brief</code> gives two states per port: <b>line</b> (Layer 1) and <b>protocol</b> (Layer 2)."},
+    {t:"table", head:["Line / Protocol","Meaning"], rows:[
+      ["up / up","Working"],
+      ["up / down","L1 fine, L2 problem (encapsulation/keepalive mismatch)"],
+      ["down / down","Cable, speed, or the other end is down"],
+      ["admin down / down","Interface is shut — needs <code>no shutdown</code>"],
+    ]},
+    {t:"cmd", label:"Check interfaces", lines:[
+      ["Switch#","show ip interface brief"],
+      ["Switch#","show interfaces status"],
+      ["Switch#","show interfaces GigabitEthernet0/1"],
+      ["","! look for CRC / input errors = cabling or duplex mismatch"],
+    ]},
+  ]},
+
+{ id:"switching", domain:"1 · Network Fundamentals", title:"Ethernet & Switching",
+  summary:"How a switch learns MACs and forwards frames, and the makeup of an Ethernet frame.",
+  blocks:[
+    {t:"h", text:"How a switch forwards"},
+    {t:"facts", items:[
+      "<b>Learn</b> — records the source MAC + ingress port in the MAC address table.",
+      "<b>Flood</b> — unknown-unicast, broadcast, and multicast frames go out all ports except the one they arrived on.",
+      "<b>Forward</b> — known unicast goes only out the port for that destination MAC.",
+      "<b>Filter</b> — never sends a frame back out the port it came in on.",
+      "Default MAC aging time is <b>300 seconds</b>.",
+    ]},
+    {t:"h", text:"Ethernet frame & addresses"},
+    {t:"tp", html:"A MAC is <b>48 bits</b> (12 hex digits): first 24 = OUI (vendor), last 24 = device. Broadcast MAC = <code>FFFF.FFFF.FFFF</code>. The frame carries src/dst MAC, an optional 802.1Q tag, type/length, payload, and a 4-byte <b>FCS</b> for error checking."},
+    {t:"cmd", label:"Inspect the MAC table", lines:[
+      ["Switch#","show mac address-table"],
+      ["Switch#","show mac address-table dynamic"],
+    ]},
+    {t:"note", html:"Switches operate in <b>store-and-forward</b> by default — the whole frame is received and the FCS checked before forwarding."},
+  ]},
+
+{ id:"ipv4", domain:"1 · Network Fundamentals", title:"IPv4 Addressing",
+  summary:"Classes, private ranges, special blocks, and the subnetting math.",
+  blocks:[
+    {t:"h", text:"Classes & private ranges"},
+    {t:"table", head:["Class","1st octet","Default mask","Private range (RFC 1918)"], rows:[
+      ["A","1–126","/8","10.0.0.0 – 10.255.255.255"],
+      ["B","128–191","/16","172.16.0.0 – 172.31.255.255"],
+      ["C","192–223","/24","192.168.0.0 – 192.168.255.255"],
+      ["D","224–239","—","Multicast"],
+      ["E","240–255","—","Experimental"],
+    ]},
+    {t:"facts", items:[
+      "<b>127.0.0.0/8</b> = loopback (127.0.0.1 = localhost).",
+      "<b>169.254.0.0/16</b> = APIPA — self-assigned, a sign DHCP failed.",
+      "<b>100.64.0.0/10</b> = CGN / shared space (RFC 6598).",
+      "Usable hosts per subnet = <b>2^(32 − prefix) − 2</b> (minus network + broadcast).",
+      "A <b>/30</b> = 2 usable hosts (point-to-point); a <b>/31</b> = 2 usable, no waste (RFC 3021).",
+    ]},
+    {t:"h", text:"Subnetting shortcut"},
+    {t:"tp", html:"Work in the interesting octet: <b>block size = 256 − mask value</b>. e.g. mask <code>255.255.255.192</code> (/26) → block size 64 → subnets 0, 64, 128, 192. The host's subnet is the largest multiple of the block size ≤ its address."},
+    {t:"note", html:"Drill this live on the <b>IPv4 Subnetting</b> page — network/broadcast/host-range questions with full working."},
+  ]},
+
+{ id:"ipv6", domain:"1 · Network Fundamentals", title:"IPv6 Addressing",
+  summary:"128-bit addressing, the address types, and how hosts self-configure.",
+  blocks:[
+    {t:"facts", items:[
+      "<b>128 bits</b>, written as eight 16-bit hextets in hex.",
+      "Shorten: drop leading zeros per hextet; replace <b>one</b> run of all-zero hextets with <code>::</code>.",
+      "A typical LAN uses a <b>/64</b> — first 64 bits = network, last 64 = interface ID.",
+      "No broadcast in IPv6 — multicast and anycast do that job.",
+    ]},
+    {t:"h", text:"Address types"},
+    {t:"table", head:["Type","Prefix","Notes"], rows:[
+      ["Global unicast","2000::/3","Internet-routable (public)"],
+      ["Link-local","fe80::/10","Auto on every interface; local link only"],
+      ["Unique local","fc00::/7","Private (usually fd00::/8) — like RFC 1918"],
+      ["Multicast","ff00::/8","ff02::1 all-nodes, ff02::2 all-routers"],
+      ["Loopback","::1","Localhost"],
+      ["Unspecified","::","All zeros"],
+    ]},
+    {t:"h", text:"SLAAC & EUI-64"},
+    {t:"tp", html:"With <b>SLAAC</b> a host learns the /64 prefix from a Router Advertisement (NDP) and builds its own address. <b>EUI-64</b> forms the interface ID from the MAC: split the MAC, insert <code>FFFE</code> in the middle, and flip the 7th bit (U/L)."},
+    {t:"cmd", label:"Enable IPv6 routing & address an interface", lines:[
+      ["Router(config)#","ipv6 unicast-routing"],
+      ["Router(config)#","interface Gi0/0"],
+      ["Router(config-if)#","ipv6 address 2001:db8:30::1/64"],
+      ["Router(config-if)#","ipv6 address autoconfig"],
+      ["","! 'show ipv6 interface brief' shows link-local + global"],
+    ]},
+  ]},
+
+/* ===================== DOMAIN 2 — NETWORK ACCESS ===================== */
+{ id:"vlans", domain:"2 · Network Access", title:"VLANs & Trunking",
+  summary:"Segmenting a switch into broadcast domains and carrying them between switches with 802.1Q.",
+  blocks:[
+    {t:"facts", items:[
+      "A <b>VLAN</b> is a separate broadcast domain — traffic between VLANs needs a router/SVI.",
+      "<b>Access port</b> = one VLAN, untagged toward the host. <b>Trunk port</b> = many VLANs, 802.1Q-tagged.",
+      "Normal VLAN range <b>1–1005</b>; extended <b>1006–4094</b>. VLAN 1 is the default; 1002–1005 are reserved.",
+      "The <b>802.1Q tag</b> is 4 bytes and carries the 12-bit VLAN ID (max 4094 VLANs).",
+      "The <b>native VLAN</b> is sent untagged on a trunk — must match both ends; move it off VLAN 1 to harden against VLAN hopping.",
+    ]},
+    {t:"cmd", label:"Create a VLAN and assign an access port", lines:[
+      ["Switch(config)#","vlan 30"],
+      ["Switch(config-vlan)#","name GUEST"],
+      ["Switch(config-vlan)#","exit"],
+      ["Switch(config)#","interface Gi0/5"],
+      ["Switch(config-if)#","switchport mode access"],
+      ["Switch(config-if)#","switchport access vlan 30"],
+    ]},
+    {t:"cmd", label:"Configure an 802.1Q trunk", lines:[
+      ["Switch(config)#","interface Gi0/24"],
+      ["Switch(config-if)#","switchport trunk encapsulation dot1q"],
+      ["Switch(config-if)#","switchport mode trunk"],
+      ["Switch(config-if)#","switchport trunk allowed vlan 10,20,30"],
+      ["Switch(config-if)#","switchport trunk native vlan 999"],
+    ]},
+    {t:"note", html:"Verify with <code>show vlan brief</code> (access ports) and <code>show interfaces trunk</code> (native + allowed VLANs). <b>DTP</b> is Cisco's trunk-negotiation protocol — disable it with <code>switchport nonegotiate</code> on hard-set links."},
+  ]},
+
+{ id:"ivr", domain:"2 · Network Access", title:"Inter-VLAN Routing",
+  summary:"The two ways to route between VLANs: router-on-a-stick and multilayer SVIs.",
+  blocks:[
+    {t:"h", text:"Router-on-a-stick"},
+    {t:"tp", html:"One router interface, trunked to the switch, with a <b>subinterface per VLAN</b>. Each subinterface tags one VLAN and acts as that VLAN's gateway."},
+    {t:"cmd", lines:[
+      ["Router(config)#","interface Gi0/0.10"],
+      ["Router(config-subif)#","encapsulation dot1q 10"],
+      ["Router(config-subif)#","ip address 10.10.0.1 255.255.255.0"],
+    ]},
+    {t:"h", text:"SVIs on a multilayer switch"},
+    {t:"tp", html:"A Layer-3 switch routes between VLANs internally using <b>Switched Virtual Interfaces</b>. You must enable routing first — it's off by default."},
+    {t:"cmd", lines:[
+      ["Switch(config)#","ip routing"],
+      ["Switch(config)#","interface vlan 10"],
+      ["Switch(config-if)#","ip address 10.10.0.1 255.255.255.0"],
+      ["Switch(config-if)#","no shutdown"],
+    ]},
+    {t:"note", html:"An SVI stays down until at least one access port (or a trunk) in that VLAN is up."},
+  ]},
+
+{ id:"stp", domain:"2 · Network Access", title:"Spanning Tree (STP/RSTP)",
+  summary:"Loop prevention on redundant Layer-2 links, root election, and edge hardening.",
+  blocks:[
+    {t:"tp", html:"STP (802.1D) blocks redundant paths to prevent Layer-2 loops, leaving one loop-free tree. <b>Rapid PVST+</b> (Cisco default to standardize on) converges in seconds with one instance per VLAN."},
+    {t:"h", text:"Must-know numbers"},
+    {t:"table", head:["Item","Value"], rows:[
+      ["Default bridge priority","32768 (in steps of 4096)"],
+      ["Bridge ID","priority + ext-sys-id + MAC"],
+      ["Timers (hello/fwd/max-age)","2 / 15 / 20 sec"],
+      ["Cost: 10/100/1000/10G","100 / 19 / 4 / 2"],
+      ["802.1D states","Block · Listen · Learn · Forward"],
+      ["RSTP roles","Root · Designated · Alternate · Backup"],
+    ]},
+    {t:"facts", items:[
+      "<b>Root bridge</b> = lowest Bridge ID (priority, then lowest MAC).",
+      "<b>Root port</b> = the port with the lowest cost back to the root (one per non-root switch).",
+      "<b>PortFast</b> skips listen/learn on edge ports; <b>BPDU Guard</b> err-disables a PortFast port that receives a BPDU.",
+    ]},
+    {t:"cmd", label:"Set root + harden edge ports", lines:[
+      ["Switch(config)#","spanning-tree mode rapid-pvst"],
+      ["Switch(config)#","spanning-tree vlan 1-50 root primary"],
+      ["Switch(config)#","interface range Gi0/1 - 8"],
+      ["Switch(config-if-range)#","spanning-tree portfast"],
+      ["Switch(config-if-range)#","spanning-tree bpduguard enable"],
+    ]},
+  ]},
+
+{ id:"etherchannel", domain:"2 · Network Access", title:"EtherChannel",
+  summary:"Bundling parallel links into one logical link for bandwidth and redundancy.",
+  blocks:[
+    {t:"tp", html:"EtherChannel makes several physical links act as one logical link, so STP doesn't block them. Members must match in speed, duplex, and VLAN settings."},
+    {t:"table", head:["Protocol","Modes","Standard?"], rows:[
+      ["LACP","active / passive","IEEE 802.3ad (multivendor)"],
+      ["PAgP","desirable / auto","Cisco-proprietary"],
+      ["Static","on","No negotiation"],
+    ]},
+    {t:"note", html:"For LACP to form you need <b>active+active</b> or <b>active+passive</b> (passive+passive never forms)."},
+    {t:"cmd", label:"Build an LACP bundle", lines:[
+      ["Switch(config)#","interface range Gi0/1 - 2"],
+      ["Switch(config-if-range)#","channel-group 1 mode active"],
+      ["Switch(config-if-range)#","exit"],
+      ["Switch(config)#","interface port-channel 1"],
+      ["Switch(config-if)#","switchport mode trunk"],
+      ["","! verify: show etherchannel summary  -> all members (P)"],
+    ]},
+  ]},
+
+{ id:"wireless", domain:"2 · Network Access", title:"Wireless (WLAN)",
+  summary:"AP architectures, the WLC, 802.11 standards, and Wi-Fi security.",
+  blocks:[
+    {t:"facts", items:[
+      "<b>Autonomous AP</b> = standalone config; <b>lightweight AP</b> = managed by a WLC.",
+      "<b>CAPWAP</b> tunnels lightweight AP ↔ WLC: UDP <b>5246</b> (control) / <b>5247</b> (data).",
+      "<b>Split-MAC</b>: AP handles real-time RF, WLC handles management/control.",
+      "<b>SSID</b> = the network name clients join; can map to different VLANs.",
+      "2.4 GHz non-overlapping channels (NA): <b>1, 6, 11</b>.",
+    ]},
+    {t:"h", text:"802.11 standards"},
+    {t:"table", head:["Standard","Name","Band","Max rate"], rows:[
+      ["802.11a","—","5 GHz","54 Mbps"],
+      ["802.11b","—","2.4 GHz","11 Mbps"],
+      ["802.11g","—","2.4 GHz","54 Mbps"],
+      ["802.11n","Wi-Fi 4","2.4/5 GHz","600 Mbps (MIMO)"],
+      ["802.11ac","Wi-Fi 5","5 GHz","~6.9 Gbps (MU-MIMO)"],
+      ["802.11ax","Wi-Fi 6","2.4/5/6 GHz","~9.6 Gbps (OFDMA)"],
+    ]},
+    {t:"h", text:"Security"},
+    {t:"tp", html:"<b>WPA2</b> uses AES/CCMP with a 4-way handshake; <b>WPA3</b> replaces the PSK handshake with <b>SAE</b> (Simultaneous Authentication of Equals) for stronger protection. Enterprise mode adds 802.1X/RADIUS for per-user authentication."},
+  ]},
+
+{ id:"discovery", domain:"2 · Network Access", title:"Discovery (CDP/LLDP)",
+  summary:"Mapping directly connected neighbors at Layer 2.",
+  blocks:[
+    {t:"facts", items:[
+      "<b>CDP</b> = Cisco Discovery Protocol (Cisco-proprietary). Shows directly connected Cisco devices.",
+      "<b>LLDP</b> = IEEE 802.1AB, the multivendor standard — enable with <code>lldp run</code>.",
+      "Both reveal neighbor device ID, local/remote port, platform, and (with detail) IP.",
+    ]},
+    {t:"cmd", label:"See your neighbors", lines:[
+      ["Switch#","show cdp neighbors detail"],
+      ["Switch#","show lldp neighbors"],
+    ]},
+    {t:"note", html:"Disable CDP on untrusted/edge ports (<code>no cdp enable</code>) — it leaks device info."},
+  ]},
+
+/* ===================== DOMAIN 3 — IP CONNECTIVITY ===================== */
+{ id:"routing", domain:"3 · IP Connectivity", title:"Routing Fundamentals",
+  summary:"How a router picks a path: longest match, administrative distance, then metric.",
+  blocks:[
+    {t:"h", text:"The decision order"},
+    {t:"facts", items:[
+      "<b>1. Longest prefix match</b> — the most specific route wins regardless of source.",
+      "<b>2. Administrative distance (AD)</b> — if prefixes tie, the lowest-AD source wins (which protocol to trust).",
+      "<b>3. Metric</b> — within one protocol, the lowest metric wins.",
+    ]},
+    {t:"h", text:"Administrative distances"},
+    {t:"table", head:["Source","AD"], rows:[
+      ["Connected","0"],["Static","1"],["EIGRP summary","5"],["eBGP","20"],
+      ["EIGRP (internal)","90"],["OSPF","110"],["IS-IS","115"],["RIP","120"],
+      ["EIGRP (external)","170"],["iBGP","200"],["Unreachable","255"],
+    ]},
+    {t:"h", text:"Route source codes"},
+    {t:"tp", html:"In <code>show ip route</code>: <code>C</code> connected, <code>L</code> local, <code>S</code> static, <code>O</code> OSPF, <code>D</code> EIGRP, <code>S*</code> default. A router only forwards a packet if it has a matching route — otherwise it's dropped."},
+    {t:"cmd", lines:[
+      ["Router#","show ip route"],
+      ["Router#","show ip route 10.30.0.5"],
+      ["Router#","show ip protocols"],
+    ]},
+  ]},
+
+{ id:"static", domain:"3 · IP Connectivity", title:"Static Routing",
+  summary:"Manually telling the router where networks live, plus default and floating routes.",
+  blocks:[
+    {t:"facts", items:[
+      "Syntax: <code>ip route &lt;network&gt; &lt;mask&gt; &lt;next-hop | exit-int&gt; [AD]</code>.",
+      "<b>Default route</b> = <code>0.0.0.0 0.0.0.0</code> — gateway of last resort toward the ISP.",
+      "<b>Floating static</b> = a backup route with a higher AD; only installs if the primary fails.",
+      "IPv6 default is <code>::/0</code> and needs <code>ipv6 unicast-routing</code> first.",
+    ]},
+    {t:"cmd", label:"Static, default, and floating backup", lines:[
+      ["Router(config)#","ip route 10.50.0.0 255.255.255.0 10.0.0.2"],
+      ["Router(config)#","ip route 0.0.0.0 0.0.0.0 203.0.113.1"],
+      ["Router(config)#","ip route 0.0.0.0 0.0.0.0 198.51.100.1 10"],
+      ["","! the AD 10 route is the floating backup"],
+    ]},
+    {t:"note", html:"A next-hop on a multi-access link is preferred over an exit-interface-only static, which can cause ARP issues."},
+  ]},
+
+{ id:"ospf", domain:"3 · IP Connectivity", title:"OSPF",
+  summary:"Single-area OSPFv2 — adjacencies, cost, the Router ID, and verification.",
+  blocks:[
+    {t:"facts", items:[
+      "Link-state protocol running <b>Dijkstra/SPF</b>; AD <b>110</b>; multicast <b>224.0.0.5/6</b>.",
+      "Cost = <b>reference BW ÷ interface BW</b> (default reference 100 Mbps). Lower cost wins.",
+      "Hello/Dead on broadcast & p2p = <b>10 / 40 sec</b> — must match to form an adjacency.",
+      "Router ID: manual → highest loopback → highest active interface IP.",
+      "Every area must touch <b>Area 0</b> (the backbone).",
+      "Process ID is <b>local</b> — it need NOT match neighbors (unlike EIGRP's AS).",
+    ]},
+    {t:"cmd", label:"Single-area OSPF", lines:[
+      ["Router(config)#","router ospf 1"],
+      ["Router(config-router)#","router-id 1.1.1.1"],
+      ["Router(config-router)#","network 10.0.0.0 0.0.0.255 area 0"],
+      ["Router(config-router)#","passive-interface Gi0/1"],
+      ["Router(config-router)#","default-information originate"],
+    ]},
+    {t:"note", html:"Network statements use a <b>wildcard</b> (inverse) mask. Verify adjacencies with <code>show ip ospf neighbor</code> — healthy = <b>FULL</b> (or 2WAY for non-DR). Stuck in INIT/EXSTART → timer, MTU, or subnet mismatch."},
+  ]},
+
+{ id:"fhrp", domain:"3 · IP Connectivity", title:"First-Hop Redundancy",
+  summary:"Sharing one virtual gateway across two routers so hosts never lose their default gateway.",
+  blocks:[
+    {t:"table", head:["Protocol","Type","Roles"], rows:[
+      ["HSRP","Cisco","Active / Standby"],
+      ["VRRP","Open standard","Master / Backup"],
+      ["GLBP","Cisco","AVG load-balances across gateways"],
+    ]},
+    {t:"facts", items:[
+      "Hosts point at a <b>virtual IP</b> shared by the routers; only the active router forwards.",
+      "HSRP virtual MAC = <code>0000.0C07.ACxx</code> (xx = group in hex).",
+      "Higher priority wins; enable <b>preempt</b> so the primary reclaims the role after a reboot.",
+    ]},
+    {t:"cmd", label:"HSRP on the gateway SVI", lines:[
+      ["Switch(config-if)#","standby version 2"],
+      ["Switch(config-if)#","standby 10 ip 10.10.0.1"],
+      ["Switch(config-if)#","standby 10 priority 110"],
+      ["Switch(config-if)#","standby 10 preempt"],
+      ["","! verify: show standby brief"],
+    ]},
+  ]},
+
+/* ===================== DOMAIN 4 — IP SERVICES ===================== */
+{ id:"nat", domain:"4 · IP Services", title:"NAT & PAT",
+  summary:"Translating private addresses to public, including many-to-one overload.",
+  blocks:[
+    {t:"facts", items:[
+      "<b>Static NAT</b> = fixed 1:1; <b>Dynamic NAT</b> = pool; <b>PAT (overload)</b> = many private → one public, tracked by port.",
+      "NAT only acts on traffic crossing between an <b>inside</b> and an <b>outside</b> interface.",
+      "Terms: inside-local (private), inside-global (public), outside-global (real public dest).",
+    ]},
+    {t:"cmd", label:"PAT to the outside interface", lines:[
+      ["Router(config)#","interface Gi0/0"],
+      ["Router(config-if)#","ip nat inside"],
+      ["Router(config-if)#","interface Gi0/1"],
+      ["Router(config-if)#","ip nat outside"],
+      ["Router(config)#","access-list 1 permit 192.168.0.0 0.0.255.255"],
+      ["Router(config)#","ip nat inside source list 1 interface Gi0/1 overload"],
+    ]},
+    {t:"note", html:"Forgetting <code>ip nat inside/outside</code> is the top reason NAT 'does nothing'. Verify with <code>show ip nat translations</code>."},
+  ]},
+
+{ id:"dhcp", domain:"4 · IP Services", title:"DHCP",
+  summary:"Automatic address assignment, the DORA exchange, and relay across subnets.",
+  blocks:[
+    {t:"facts", items:[
+      "Exchange: <b>DORA</b> — Discover · Offer · Request · Acknowledge.",
+      "Ports: server <b>67</b>, client <b>68</b> (UDP). Discover is a broadcast.",
+      "A client with a <b>169.254.x.x</b> (APIPA) address means DHCP failed.",
+      "<b>ip helper-address</b> relays broadcast DHCP to a server on another subnet.",
+    ]},
+    {t:"cmd", label:"Router DHCP pool + relay", lines:[
+      ["Router(config)#","ip dhcp excluded-address 10.30.0.1 10.30.0.10"],
+      ["Router(config)#","ip dhcp pool VLAN30"],
+      ["Router(dhcp-config)#","network 10.30.0.0 255.255.255.0"],
+      ["Router(dhcp-config)#","default-router 10.30.0.1"],
+      ["Router(dhcp-config)#","dns-server 1.1.1.1"],
+      ["Router(config)#","interface vlan 40"],
+      ["Router(config-if)#","ip helper-address 10.30.0.1"],
+    ]},
+    {t:"note", html:"Set <code>excluded-address</code> <b>before</b> the pool so the gateway/static range isn't leased out. Verify with <code>show ip dhcp binding</code>."},
+  ]},
+
+{ id:"services", domain:"4 · IP Services", title:"NTP · DNS · SNMP · Syslog · QoS",
+  summary:"The supporting services and the management/monitoring stack.",
+  blocks:[
+    {t:"facts", items:[
+      "<b>NTP</b> (UDP 123) syncs the clock — critical for logs and certificates. <code>ntp server 10.0.0.5</code>.",
+      "<b>DNS</b> (UDP/TCP 53) resolves names to IPs. <code>ip name-server</code> / <code>ip domain-lookup</code>.",
+      "<b>SNMP</b> (161 poll / 162 trap) monitors devices; use <b>SNMPv3</b> for auth + encryption.",
+      "<b>Syslog</b> (UDP 514) sends logs to a collector; severity <b>0 (emergency) → 7 (debug)</b>.",
+    ]},
+    {t:"h", text:"Syslog severity (0 = worst)"},
+    {t:"tp", html:"Mnemonic: <b>Every Awesome Cisco Engineer Will Need Ice cream</b> — Emergency, Alert, Critical, Error, Warning, Notice, Informational, Debug."},
+    {t:"h", text:"QoS essentials"},
+    {t:"facts", items:[
+      "<b>Classification & marking</b>: DSCP (Layer 3) / CoS (Layer 2). <b>EF</b> (DSCP 46) = voice.",
+      "<b>Queuing</b> handles congestion; <b>policing</b> drops over-rate traffic, <b>shaping</b> buffers it.",
+      "Voice needs low delay/jitter/loss → prioritized in a low-latency queue.",
+    ]},
+    {t:"cmd", label:"NTP + Syslog", lines:[
+      ["Router(config)#","ntp server 10.0.0.5"],
+      ["Router(config)#","logging host 10.0.0.20"],
+      ["Router(config)#","service timestamps log datetime msec"],
+    ]},
+  ]},
+
+/* ===================== DOMAIN 5 — SECURITY FUNDAMENTALS ===================== */
+{ id:"secfund", domain:"5 · Security Fundamentals", title:"Security Concepts & AAA",
+  summary:"The vocabulary, the CIA triad, and how AAA centralizes access control.",
+  blocks:[
+    {t:"facts", items:[
+      "<b>CIA triad</b>: Confidentiality, Integrity, Availability.",
+      "Threat / vulnerability / exploit / risk — know the difference.",
+      "Common attacks: spoofing, MITM, DoS/DDoS, phishing/social engineering, brute force.",
+      "<b>AAA</b>: Authentication (who), Authorization (what), Accounting (logging).",
+    ]},
+    {t:"table", head:["","RADIUS","TACACS+"], rows:[
+      ["Vendor","Open (IETF)","Cisco"],
+      ["Transport","UDP 1812/1813","TCP 49"],
+      ["Encryption","Password only","Whole payload"],
+      ["AAA","Combines authN+authZ","Separates all three"],
+    ]},
+    {t:"note", html:"Use a strong <b>password policy</b>, multi-factor where possible, and <code>enable secret</code> (hashed) over <code>enable password</code>."},
+  ]},
+
+{ id:"hardening", domain:"5 · Security Fundamentals", title:"Device Hardening & SSH",
+  summary:"Locking down management access to the device itself.",
+  blocks:[
+    {t:"facts", items:[
+      "Always use <b>SSH</b>, never Telnet — <code>transport input ssh</code> on the VTY lines.",
+      "SSH needs a hostname + domain name before generating RSA keys (≥1024-bit; 2048 recommended).",
+      "Use <code>login local</code> with a username database; restrict VTY with an <b>access-class</b> ACL.",
+      "<code>service password-encryption</code> hides type-7 passwords (weak, but expected).",
+    ]},
+    {t:"cmd", label:"Enable SSH", lines:[
+      ["Switch(config)#","ip domain-name ets.local"],
+      ["Switch(config)#","crypto key generate rsa modulus 2048"],
+      ["Switch(config)#","username admin secret S3cret!"],
+      ["Switch(config)#","line vty 0 15"],
+      ["Switch(config-line)#","login local"],
+      ["Switch(config-line)#","transport input ssh"],
+    ]},
+  ]},
+
+{ id:"l2sec", domain:"5 · Security Fundamentals", title:"Layer-2 Security",
+  summary:"Port security, DHCP snooping, Dynamic ARP Inspection, and 802.1X.",
+  blocks:[
+    {t:"h", text:"Port security"},
+    {t:"tp", html:"Limits which/how many MACs may use an access port. Violation modes: <b>shutdown</b> (default, err-disables), <b>restrict</b> (drop + log + count), <b>protect</b> (drop silently). <code>sticky</code> learns and saves the MAC."},
+    {t:"cmd", lines:[
+      ["Switch(config-if)#","switchport mode access"],
+      ["Switch(config-if)#","switchport port-security"],
+      ["Switch(config-if)#","switchport port-security maximum 2"],
+      ["Switch(config-if)#","switchport port-security mac-address sticky"],
+      ["Switch(config-if)#","switchport port-security violation restrict"],
+    ]},
+    {t:"h", text:"Other Layer-2 protections"},
+    {t:"facts", items:[
+      "<b>DHCP snooping</b> — only 'trusted' ports (toward the real server) may send DHCP offers; blocks rogue DHCP.",
+      "<b>Dynamic ARP Inspection (DAI)</b> — uses the snooping binding table to stop ARP spoofing/MITM.",
+      "<b>802.1X</b> — port-based authentication via a supplicant, authenticator (switch), and RADIUS server.",
+      "<b>BPDU Guard / PortFast</b> on edge ports stop rogue switches.",
+    ]},
+  ]},
+
+{ id:"acl", domain:"5 · Security Fundamentals", title:"Access Control Lists",
+  summary:"Filtering traffic with standard, extended, and named ACLs — and where to place them.",
+  blocks:[
+    {t:"facts", items:[
+      "<b>Standard (1–99)</b> match source only → place close to the <b>destination</b>.",
+      "<b>Extended (100–199)</b> match protocol/src/dst/port → place close to the <b>source</b>.",
+      "Processed top-down, first match wins; there's an implicit <b>deny any</b> at the end.",
+      "ACLs use a <b>wildcard mask</b> (inverse). <code>host x</code> = <code>x 0.0.0.0</code>; <code>any</code> = all.",
+      "Apply with <code>ip access-group {in|out}</code>; an ACL does nothing until applied.",
+    ]},
+    {t:"cmd", label:"Named extended ACL", lines:[
+      ["Router(config)#","ip access-list extended GUEST-FILTER"],
+      ["Router(config-ext-nacl)#","deny ip 10.99.0.0 0.0.0.255 10.0.0.0 0.255.255.255"],
+      ["Router(config-ext-nacl)#","permit ip any any"],
+      ["Router(config)#","interface vlan 99"],
+      ["Router(config-if)#","ip access-group GUEST-FILTER in"],
+    ]},
+    {t:"note", html:"<code>show access-lists</code> shows per-line hit counters — the fastest way to see whether traffic is actually matching."},
+  ]},
+
+/* ===================== DOMAIN 6 — AUTOMATION & PROGRAMMABILITY ===================== */
+{ id:"automation", domain:"6 · Automation & Programmability", title:"Automation & SDN",
+  summary:"Why automation, the controller model, REST/JSON, and config-management tools.",
+  blocks:[
+    {t:"facts", items:[
+      "<b>Why:</b> consistency, speed, fewer human errors vs box-by-box CLI.",
+      "<b>SDN</b> separates the <b>control plane</b> (the brain — routing decisions) from the <b>data plane</b> (forwarding).",
+      "A <b>controller</b> centralizes the control plane; the <b>southbound</b> interface talks to devices, the <b>northbound</b> (REST API) talks to apps.",
+      "<b>Cisco DNA Center</b> = intent-based networking controller for Catalyst.",
+    ]},
+    {t:"h", text:"REST APIs & data formats"},
+    {t:"table", head:["HTTP verb","Action"], rows:[
+      ["GET","Read data"],["POST","Create"],["PUT/PATCH","Update/replace"],["DELETE","Remove"],
+    ]},
+    {t:"tp", html:"REST runs over HTTPS and returns structured data. <b>JSON</b> is the common format — key/value pairs in <code>{ }</code>, arrays in <code>[ ]</code>. Codes: 200 OK, 201 created, 401 unauthorized, 404 not found."},
+    {t:"h", text:"Config-management tools"},
+    {t:"table", head:["Tool","Model","Language","Agent?"], rows:[
+      ["Ansible","Push","YAML","Agentless (SSH)"],
+      ["Puppet","Pull","Ruby DSL","Agent"],
+      ["Chef","Pull","Ruby","Agent"],
+    ]},
+    {t:"note", html:"<b>Controller-based vs traditional:</b> traditional = configure each device's CLI; controller-based = define intent centrally and the controller pushes it. Know that distinction cold."},
+  ]},
+];
+
+/* ============================ RENDER ============================ */
+const tocEl = document.getElementById('toc');
+const mainEl = document.getElementById('main');
+const legendEl = document.getElementById('legend');
+let active = TOPICS[0].id;
+
+legendEl.innerHTML = MODES.map(m =>
+  `<span class="chip"><span class="dot" style="background:var(--${m.cls})"></span>${m.label} <code>${m.legend}</code></span>`
+).join('');
+
+/* sidebar grouped by domain */
+(function buildToc(){
+  let html='', lastDomain='';
+  TOPICS.forEach(t=>{
+    if(t.domain!==lastDomain){ html+=`<div class="domain">${esc(t.domain)}</div>`; lastDomain=t.domain; }
+    html+=`<button data-id="${t.id}" class="${t.id===active?'active':''}">${esc(t.title)}</button>`;
+  });
+  tocEl.innerHTML=html;
+  tocEl.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ active=b.dataset.id; render(); }));
+})();
+
+function promptClass(p){
+  if(/\(config-if(-range)?\)#\s*$/.test(p)) return 'm-if';
+  if(/\(config\)#\s*$/.test(p)) return 'm-global';
+  if(/\([^)]*\)#\s*$/.test(p)) return 'm-sub';
+  if(/#\s*$/.test(p)) return 'm-priv';
+  if(/>\s*$/.test(p)) return 'm-user';
+  return 'm-priv';
+}
+function renderConsole(lines){
+  return `<div class="console">`+ lines.map(([p,c])=>{
+    if(p==='' || String(c).trim().startsWith('!')) return `<span class="comment">${esc(c)}</span>`;
+    return `<span class="prompt ${promptClass(p)}">${esc(p)}</span> <span class="typed">${esc(c)}</span>`;
+  }).join('\n') +`</div>`;
+}
+function renderBlock(b){
+  switch(b.t){
+    case 'p':    return `<p class="tp">${b.html}</p>`;
+    case 'h':    return `<h3 class="th">${esc(b.text)}</h3>`;
+    case 'facts':return `<ul class="facts">${b.items.map(i=>`<li>${i}</li>`).join('')}</ul>`;
+    case 'note': return `<div class="tnote">${b.html}</div>`;
+    case 'tp':   return `<p class="tp">${b.html}</p>`;
+    case 'table':return `<div class="ttable-wrap"><table class="ttable"><thead><tr>${b.head.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${b.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+    case 'cmd':  return `<div class="cmd-ex">${b.label?`<div class="cmd-label">${esc(b.label)}</div>`:''}${renderConsole(b.lines)}</div>`;
+    default:     return '';
+  }
+}
+function render(){
+  const i = TOPICS.findIndex(t=>t.id===active);
+  const t = TOPICS[i];
+  tocEl.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.id===active));
+  const prev = TOPICS[i-1], next = TOPICS[i+1];
+  mainEl.innerHTML =
+    `<div class="topic-head">
+       <p class="kicker">${esc(t.domain)}</p>
+       <h2>${esc(t.title)}</h2>
+       <p class="sum">${esc(t.summary)}</p>
+     </div>` +
+    t.blocks.map(renderBlock).join('') +
+    `<div class="pager">
+       <button class="prev" ${prev?'':'disabled'} ${prev?`data-go="${prev.id}"`:''}>
+         <span class="pl">← Previous</span>${prev?esc(prev.title):'—'}</button>
+       <button class="next" ${next?'':'disabled'} ${next?`data-go="${next.id}"`:''}>
+         <span class="pl">Next →</span>${next?esc(next.title):'—'}</button>
+     </div>`;
+  mainEl.querySelectorAll('.pager button[data-go]').forEach(b=>
+    b.addEventListener('click',()=>{ active=b.dataset.go; render(); }));
+  window.scrollTo({top:0,behavior:'auto'});
+}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+render();
+</script>
+</body>
+</html>
